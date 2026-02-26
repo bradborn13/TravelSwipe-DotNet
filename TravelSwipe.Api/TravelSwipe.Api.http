@@ -1,0 +1,6 @@
+@TravelSwipe.Api_HostAddress = http://localhost:5008
+
+GET {{TravelSwipe.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
