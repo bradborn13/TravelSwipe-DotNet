@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TravelSwipe.Core.Core.Users;
+using TravelSwipe.Core.Features.Users;
 
-namespace TravelSwipe.Core.Features.Users
+namespace TravelSwipe.Application.Services
 {
 
     public class UserService : IUserService

@@ -8,8 +8,9 @@ namespace TravelSwipe.Core.Features.Activities
 {
     public interface IActivityService
     {
-        Task<IEnumerable<ActivityDto>> GetActivitiesByCity(string city);
-        Task<IEnumerable<ActivityDto>> ScrapePhotosForActivity(string city);
+        Task<List<ActivityDto>> GetActivitiesByCity(string city);
+        Task<List<ActivityDto>> ScrapePhotosForActivity(string city);
+        Task ScrapeCityAndCountryForActivity();
 
     }
 }

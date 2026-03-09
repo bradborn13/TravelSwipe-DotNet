@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
 using SerpApi;
 using System;
 using System.Collections;
@@ -52,17 +53,20 @@ namespace TravelSwipe.Application.ExternalServices
         }
         public async Task<List<ImageURL>> GetImages(string activityName, string city)
         {
-            var url =
-             $"search.json?engine=google_images" +
-             $"&q={Uri.EscapeDataString(activityName)}" +
-             $"&location={Uri.EscapeDataString(city)}" +
-             $"&gl=us" +
-             $"&hl=en" +
-             $"&api_key={_apiKey}";
+            var queryParams = new Dictionary<string, string?>
+            {
+                ["engine"] = "google_images",
+                ["q"] = activityName,
+                ["location"] = city,
+                ["gl"] = "us",
+                ["hl"] = "en",
+                ["api_key"] = _apiKey
+            };
+            var url = QueryHelpers.AddQueryString("search.json", queryParams);
 
-            //var url = $"search.json?q={Uri.EscapeDataString(city)}&api_key={_apiKey}";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
 
-            var response = await _httpClient.GetAsync(url);
+            var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
             {

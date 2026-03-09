@@ -13,9 +13,7 @@ namespace TravelSwipe.Infrastructure.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<City> builder)
         {
-            builder.ToTable("cities"); // Postgres table name
-            builder.HasKey(c => c.Id);
-            builder.Property(c => c.Name).HasColumnName("city_name").IsRequired();
+
         }
     }
 }

@@ -6,6 +6,7 @@ using TravelSwipe.Infrastructure.Data;
 
 namespace TravelSwipe.Infrastructure.Repositories
 {
+
     public class ActivityRepository : IActivityRepository
     {
 
@@ -29,17 +30,56 @@ namespace TravelSwipe.Infrastructure.Repositories
             return result.ModifiedCount > 0;
         }
 
-
-
         public async Task<IEnumerable<Activity>> GetActivitiesByCity(string city)
         {
             var result = await _activities.AsQueryable()
-                              .Where(a => a.City == city)
+                              .Where(a => a.City.ToLowerInvariant() == city.ToLowerInvariant())
                               .ToListAsync();
             return result;
         }
 
-        public async Task<IEnumerable<Activity>> GetActivitiesWithoutImages(string city)
+        public async Task InsertActivityBatch(List<Activity> activities)
+        {
+            if (!activities.Any())
+                return;
+
+            var writes = activities.Select(activity =>
+    new UpdateOneModel<Activity>(
+        Builders<Activity>.Filter.Eq(x => x.FsqId, activity.FsqId),
+          Builders<Activity>.Update
+            .Set(x => x.Name, activity.Name)
+            .Set(x => x.City, activity.City)
+            .Set(x => x.Address, activity.Address)
+            .Set(x => x.Latitude, activity.Latitude)
+            .Set(x => x.Longitude, activity.Longitude)
+            .Set(x => x.Suburb, activity.Suburb)
+            .Set(x => x.Categories, activity.Categories)
+            .Set(x => x.City, activity.City)
+            .Set(x => x.Country, activity.Country)
+            .Set(x => x.DateRefreshed, activity.DateRefreshed)
+            .Set(x => x.DateCreated, activity.DateCreated)
+            .Set(x => x.Details, activity.Details)
+            .Set(x => x.Distance, activity.Distance)
+            .Set(x => x.ImagesURL, activity.ImagesURL)
+            .Set(x => x.Link, activity.Link)
+            .Set(x => x.RelatedPlaces, activity.RelatedPlaces)
+            .Set(x => x.SocialMedia, activity.SocialMedia)
+            .Set(x => x.Tel, activity.Tel)
+            .Set(x => x.Website, activity.Website)
+        )
+    {
+        IsUpsert = true
+    }
+        ).ToList();
+
+
+            var result = await _activities.BulkWriteAsync(
+     writes,
+     new BulkWriteOptions { IsOrdered = false });
+
+            Console.WriteLine($"Upserts: {result.Upserts.Count}, Modified: {result.ModifiedCount}");
+        }
+        public async Task<List<Activity>> GetActivitiesWithoutImages(string city)
         {
             var filter = Builders<Activity>.Filter.And(
                 Builders<Activity>.Filter.Eq(x => x.City, city),
@@ -49,5 +89,31 @@ namespace TravelSwipe.Infrastructure.Repositories
             var result = await _activities.Find(filter).ToListAsync();
             return result;
         }
+
+        public async Task<List<CityGeoLocation>> GetUniqueCountryList()
+        {
+            var pipeline = new EmptyPipelineDefinition<Activity>()
+           .Match(x =>
+               x.City != null &&
+               x.Country == null)
+           .Group(x => x.City, g => new
+           {
+               City = g.Key,
+               Latitude = g.First().Latitude,
+               Longitude = g.First().Longitude
+           })
+           .Project(x => new CityGeoLocation
+           {
+               City = x.City,
+               Latitude = x.Latitude,
+               Longitude = x.Longitude
+           });
+
+            var result = await _activities.Aggregate(pipeline).ToListAsync();
+            return result;
+        }
+
+
+
     }
 }

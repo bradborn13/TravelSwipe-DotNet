@@ -62,15 +62,15 @@ namespace TravelSwipe.Infrastructure.Data
                 });
             }
 
-            // 5. Map 'Details' (For any snake_case)
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Details)))
-            {
-                BsonClassMap.RegisterClassMap<Details>(cm =>
-                {
-                    cm.AutoMap();
-                    cm.MapProperty(c => c.Cross_street).SetElementName("cross_street");
-                });
-            }
+            //// 5. Map 'Details' (For any snake_case)
+            //if (!BsonClassMap.IsClassMapRegistered(typeof(Details)))
+            //{
+            //    BsonClassMap.RegisterClassMap<Details>(cm =>
+            //    {
+            //        cm.AutoMap();
+            //        cm.MapProperty(c => c.Cross_street).SetElementName("cross_street");
+            //    });
+            //}
         }
     }
 }

@@ -8,7 +8,7 @@ namespace TravelSwipe.Core.Features.Cities
 {
     public interface ICityService
     {
-        Task<IEnumerable<CityDto>> getAll();
+        Task<List<string>> GetAll();
     }
 
 }

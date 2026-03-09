@@ -8,8 +8,6 @@ namespace TravelSwipe.Api.Controllers
     [Route("[controller]")]
     public class ActivitiesController : ControllerBase
     {
-
-
         private readonly IActivityService _activityService;
 
         public ActivitiesController(IActivityService activityService)
@@ -18,7 +16,7 @@ namespace TravelSwipe.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<Activity>>> GetActivities([FromQuery] string city)
+        public async Task<ActionResult<List<Activity>>> GetActivities([FromQuery] string city)
         {
             if (string.IsNullOrWhiteSpace(city))
             {
@@ -39,5 +37,13 @@ namespace TravelSwipe.Api.Controllers
             if (activities == null || !activities.Any()) return NotFound($"No activities found in {city}.");
             return Ok(activities);
         }
+        //[HttpGet("find/country")]
+        //public async Task<IActionResult> FetchLocationDetails()
+        //{
+        //    //var result = _activityService.
+        //    //return BadRequest("City parameter is required.");
+
+        //    //return NoContent();
+        //}
     }
 }

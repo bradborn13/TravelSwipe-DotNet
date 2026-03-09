@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,10 +25,22 @@ namespace TravelSwipe.Core.Features.Activities
         DateTime DateCreated,
         DateTime DateRefreshed,
         List<RelatedPlacesDto> RelatedPlaces,
-        SocialMediaDto SocialMedia
+        SocialMediaDto SocialMedia,
+        List<ImageURLDto> ImagesURL
     );
     public record DetailsDto(string FormattedAddress, string Postcode, string Region);
     public record SocialMediaDto(string Instagram, string FacebookId);
     public record CategoryDto(string Name, string ShortName);
     public record RelatedPlacesDto(string Name, List<CategoryDto> Categories);
+    public record ImageURLDto(double OriginalHeight, double OriginalWidth, string Thumbnail, string Title, string Source, string Link, int Position, string ImgSource);
+    //{
+    //    public double? OriginalHeight { get; set; }
+    //    public double? OriginalWidth { get; set; }
+    //    public string? Thumbnail { get; set; }
+    //    public string? Title { get; set; }
+    //    public string? Source { get; set; }
+    //    public string? Link { get; set; }
+    //    public int? Position { get; set; }
+    //    public string? ImgSource { get; set; }
+    //}
 }

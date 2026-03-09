@@ -25,7 +25,7 @@ namespace TravelSwipe.Core.Features.Activities
     {
         public string Address { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
-        public string Cross_street { get; set; } = string.Empty;
+        //public string Cross_street { get; set; } = string.Empty;
         public string FormattedAddress { get; set; } = string.Empty;
         public string Locality { get; set; } = string.Empty;
         public string Postcode { get; set; } = string.Empty;
@@ -55,12 +55,13 @@ namespace TravelSwipe.Core.Features.Activities
     {
         public string? Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string? City { get; set; }
+        public required string City { get; set; }
+        public string? Country { get; set; }
         public string? Suburb { get; set; }
         public string? Address { get; set; }
         public string? Website { get; set; }
-        public double? Latitude { get; set; }
-        public double? Longitude { get; set; }
+        public required double Latitude { get; set; }
+        public required double Longitude { get; set; }
 
         public string FsqId { get; set; } = string.Empty;
         public List<ImageURL>? ImagesURL { get; set; }
@@ -74,5 +75,12 @@ namespace TravelSwipe.Core.Features.Activities
         public int? Distance { get; set; }
         public List<RelatedPlaces>? RelatedPlaces { get; set; }
         public SocialMedia? SocialMedia { get; set; }
+    }
+    public class CityGeoLocation
+    {
+        public int _id { get; set; }
+        public required string City { get; set; }
+        public required double Longitude { get; set; }
+        public required double Latitude { get; set; }
     }
 }

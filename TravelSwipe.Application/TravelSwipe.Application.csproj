@@ -8,15 +8,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TravelSwipe.Core\TravelSwipe.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Countries\" />
+    <ProjectReference Include="..\TravelSwipe.Infrastructure\TravelSwipe.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="google-search-results-dotnet" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.13" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
+    <PackageReference Include="Slugify.Core" Version="5.1.1" />
   </ItemGroup>
 
 </Project>
