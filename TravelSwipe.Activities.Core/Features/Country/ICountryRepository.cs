@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TravelSwipe.Core.Features.Cities;
+using TravelSwipe.Activities.Core.Features.Cities;
 
-namespace TravelSwipe.Core.Features.Countries
+namespace TravelSwipe.Activities.Core.Features.Countries
 {
     public interface ICountryRepository
     {
-        Task<List<Country>> GetAll();
         Task AddBatch(List<Country> countryList);
     }
 }
