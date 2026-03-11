@@ -15,6 +15,7 @@ namespace TravelSwipe.Core.Features.Activities
         string? Address,
         string? Website,
         double? Latitude,
+        string? FsqId,
         double? Longitude,
         // Flattened data for easier UI binding
         List<CategoryDto> Categories,
