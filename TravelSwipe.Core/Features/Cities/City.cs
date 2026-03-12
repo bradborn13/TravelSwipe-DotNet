@@ -9,7 +9,7 @@ namespace TravelSwipe.Core.Features.Cities
     public class City
     {
         public int Id { get; set; }
-        public List<string>? Name { get; set; }
+        public List<string>? AssociatedNames { get; set; }
         public string NameClean { get; set; } = string.Empty;
         public string? Municipality { get; set; } = string.Empty;
         public List<string>? State { get; set; } = new();

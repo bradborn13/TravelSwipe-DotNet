@@ -9,7 +9,7 @@ namespace TravelSwipe.Core.Features.Countries
     public class Country
     {
         public int Id { get; set; }
-        public List<string>? Name { get; set; }
+        public List<string>? AssociatedNames { get; set; }
         public string NameClean { get; set; } = string.Empty;
         public string? CountryCode { get; set; } = string.Empty;
 

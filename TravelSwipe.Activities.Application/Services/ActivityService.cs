@@ -8,6 +8,8 @@ using TravelSwipe.Activities.Core.Features.Activities;
 using Slugify;
 using TravelSwipe.Activities.Core.Features.Cities;
 using TravelSwipe.Activities.Core.Features.Countries;
+using MassTransit;
+using TravelSwipe.Contracts.Contracts;
 namespace TravelSwipe.Activities.Application.Services.Activities
 {
     public class ActivityService : IActivityService
@@ -15,13 +17,14 @@ namespace TravelSwipe.Activities.Application.Services.Activities
         private readonly IActivityRepository _repository;
         private readonly ICityRepository _cityRepository;
         private readonly ICountryRepository _countryRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
         private readonly SerpApiService _serpApiService;
         private readonly FourSquareService _foursquareService;
         private readonly NominatimAPIService _nominatimService;
-        public ActivityService(IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, SerpApiService serpApiService, ICityRepository cityRepository, FourSquareService forsquareService, NominatimAPIService nominatimService)
+        public ActivityService(IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, SerpApiService serpApiService, ICityRepository cityRepository, FourSquareService forsquareService, NominatimAPIService nominatimService, IPublishEndpoint publishEndpoint)
         {
             _cache = cache;
             _repository = repository;
@@ -31,6 +34,7 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             _nominatimService = nominatimService;
             _cityRepository = cityRepository;
             _countryRepository = countryRepository;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<List<ActivityDto>> GetActivitiesByCity(string city)
@@ -98,26 +102,55 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             var geoLocationList = await _nominatimService.FetchLocationInfo(activityList);
             var slugHelper = new SlugHelper();
 
+        //TODO: checked if the city is registerd, if not return them add them locally but also send event
+            // var cityNamesList = geoLocationList
+            //     .Select(x =>  slugHelper.GenerateSlug(x?.Address?.City))            
+            //     .ToList();
+            //const newCities = await _cityRepository.FindNotRegisteredCities(cityList);
+
+            // var countryNameList = geoLocationList
+            //   .Select(x => slugHelper.GenerateSlug(x.Address?.City ))
+            //   .ToList();
+
             var cityList = geoLocationList
                 .Select(x => new City
                 {
                     Country = x.Address?.Country ?? "",
-                    //Municipality = x.Address?.Municipality ?? "",
                     AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
-                    //Postcode = x?.Address?.Postcode ?? "",
-                    //State = x?.Address?.State?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(),
+                    AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown")  },
                     DisplayName = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
                 })
                 .ToList();
             var countryList = geoLocationList
              .Select(x => new Country
              {
-                 DisplayName = slugHelper.GenerateSlug(x.Address?.City ?? string.Empty),
+                 DisplayName = x.Address?.Country,
+                 AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country) },
+                 AssociatedNames = new List<string> { x?.Address?.Country },
                  CountryCode = x.Address?.CountryCode ?? ""
              })
              .ToList();
             await _cityRepository.AddBatch(cityList);
             await _countryRepository.AddBatch(countryList);
+            foreach (var geo in geoLocationList)
+            {
+                await _publishEndpoint.Publish(new CityDiscoveredEvent
+                {
+                    DisplayName = geo.Address?.City ?? "Unknown",
+                    Country = geo.Address?.Country ?? "",
+                    Municipality = geo.Address?.Municipality ?? "",
+                    State = geo.Address?.State?.Split(',').ToList(),
+                    Postcode = geo.Address?.Postcode ?? "",
+                    DiscoveredAt = DateTime.UtcNow
+                });
+
+                await _publishEndpoint.Publish(new CountryDiscoveredEvent
+                {
+                    DisplayName = geo.Address?.Country ?? "",
+                    CountryCode = geo.Address?.CountryCode ?? "",
+                    DiscoveredAt = DateTime.UtcNow
+                });
+            }
 
         }
 

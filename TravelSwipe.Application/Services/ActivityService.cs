@@ -101,19 +101,21 @@ namespace TravelSwipe.Application.Services.Activities
             var cityList = geoLocationList
                 .Select(x => new City
                 {
+                    
                     Country = x.Address?.Country ?? "",
                     Municipality = x.Address?.Municipality ?? "",
-                    Name = new List<string> { x?.Address?.City ?? "Unknown" },
+                    NameClean = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty),
+                    AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
                     Postcode = x?.Address?.Postcode ?? "",
                     State = x?.Address?.State?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList() ?? new List<string>(),
-                    NameClean = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
                 })
                 .ToList();
             var countryList = geoLocationList
              .Select(x => new Country
              {
-                 NameClean = slugHelper.GenerateSlug(x.Address?.City ?? string.Empty),
-                 CountryCode = x.Address?.CountryCode ?? ""
+                 NameClean = slugHelper.GenerateSlug(x.Address?.Country ?? string.Empty),
+                 CountryCode = x.Address?.CountryCode ?? "",
+                 AssociatedNames= { x?.Address?.Country ?? "" },
              })
              .ToList();
             await _cityRepository.AddBatch(cityList);

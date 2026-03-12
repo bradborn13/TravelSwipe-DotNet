@@ -9,4 +9,7 @@
 		<PackageReference Include="MongoDB.Driver" Version="3.7.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Contracts.csproj" />
+	</ItemGroup>
 </Project>
