@@ -9,23 +9,20 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="16.1.0" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="9.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.14" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.14">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		</PackageReference>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.14" />
-		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.4" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.14" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\TravelSwipe.Activities.Application\TravelSwipe.Activities.Application.csproj" />
-		<ProjectReference Include="..\TravelSwipe.Activities.Infrastructure\TravelSwipe.Activities.Infrastructure.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Activities.Application\Activities.Application.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Activities.Infrastructure\Activities.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TravelSwipe.Activities.Core\TravelSwipe.Activities.Core.csproj" />
+    <ProjectReference Include="..\TravelSwipe.Activities.Core\Activities.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
-using TravelSwipe.Activities.Core.Features.Cities;
-using TravelSwipe.Activities.Core.Features.Countries;
+﻿using Cities.Core.Features.Cities;
+using Cities.Core.Features.Countries;
+using Microsoft.EntityFrameworkCore;
 
-namespace TravelSwipe.Infrastructure.data
+
+namespace Cities.Infrastructure.Data
 {
-    public class ActivityDbContext : DbContext
+    public class CityDbContext : DbContext
     {
-        public ActivityDbContext(DbContextOptions<ActivityDbContext> options) : base(options) { }
+        public CityDbContext(DbContextOptions<CityDbContext> options) : base(options) { }
 
         public DbSet<City> City => Set<City>();
         public DbSet<Country> Country => Set<Country>();
@@ -17,7 +18,7 @@ namespace TravelSwipe.Infrastructure.data
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ActivityDbContext).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CityDbContext).Assembly);
             modelBuilder.Entity<City>(entity =>
             {
                 entity.ToTable("City");
