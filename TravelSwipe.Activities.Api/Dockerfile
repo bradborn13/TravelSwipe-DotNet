@@ -1,3 +1,5 @@
+Copy
+
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
@@ -5,16 +7,16 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
  
-COPY ["Services/Activities/Activities.Api/Activities.Api.csproj", "Services/Activities/Activities.Api/"]
-COPY ["Services/Activities/Activities.Application/Activities.Application.csproj", "Services/Activities/Activities.Application/"]
-COPY ["Services/Activities/Activities.Core/Activities.Core.csproj", "Services/Activities/Activities.Core/"]
-COPY ["Services/Activities/Activities.Infrastructure/Activities.Infrastructure.csproj", "Services/Activities/Activities.Infrastructure/"]
+COPY ["Activities.Api/Activities.Api.csproj", "Activities.Api/"]
+COPY ["Activities.Application/Activities.Application.csproj", "Activities.Application/"]
+COPY ["Activities.Core/Activities.Core.csproj", "Activities.Core/"]
+COPY ["Activities.Infrastructure/Activities.Infrastructure.csproj", "Activities.Infrastructure/"]
  
-RUN dotnet restore "Services/Activities/Activities.Api/Activities.Api.csproj"
+RUN dotnet restore "Activities.Api/Activities.Api.csproj"
  
 COPY . .
  
-WORKDIR "/src/Services/Activities/Activities.Api"
+WORKDIR "/src/Activities.Api"
 RUN dotnet build "Activities.Api.csproj" -c Release -o /app/build
  
 FROM build AS publish
@@ -24,3 +26,4 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Activities.Api.dll"]
+ 
