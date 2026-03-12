@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\TravelSwipe.Activities.Core\Activities.Core.csproj" />
+	  <ProjectReference Include="..\Activities.Core\Activities.Core.csproj" />
 	</ItemGroup>
 
 </Project>

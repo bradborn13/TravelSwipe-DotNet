@@ -7,7 +7,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Cities.Core\Cities.Core.csproj" />
 		<ProjectReference Include="..\Countries.Core\Countries.Core.csproj" />
 		<PackageReference Include="AutoMapper" Version="16.1.0" />
 		<PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
