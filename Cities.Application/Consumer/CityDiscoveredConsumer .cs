@@ -10,12 +10,12 @@ namespace Cities.Application.Consumers;
 public class CityDiscoveredConsumer : IConsumer<CityDiscoveredEvent>
 {
     private readonly ILogger<CityDiscoveredConsumer> _logger;
-    private readonly CityService _cityService;
+    private readonly ICityService _cityService;
     private readonly IMapper _mapper;
 
     public CityDiscoveredConsumer(
         ILogger<CityDiscoveredConsumer> logger,
-        CityService cityService,
+        ICityService cityService,
         IMapper mapper)
     {
         _logger = logger;

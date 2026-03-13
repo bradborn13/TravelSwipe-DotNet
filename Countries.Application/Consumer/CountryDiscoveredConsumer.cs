@@ -11,12 +11,12 @@ namespace Countries.Application.Consumer
     public class CountryDiscoveredConsumer : IConsumer<CountryDiscoveredEvent>
     {
         private readonly ILogger<CountryDiscoveredEvent> _logger;
-        private readonly CountryService _countryService;
+        private readonly ICountryService _countryService;
         private readonly IMapper _mapper;
 
         public CountryDiscoveredConsumer(
             ILogger<CountryDiscoveredEvent> logger,
-            CountryService countryService,
+            ICountryService countryService,
             IMapper mapper)
         {
             _logger = logger;
