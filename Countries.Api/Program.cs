@@ -15,13 +15,6 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
 
 //PostgreSQL
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
@@ -57,6 +50,13 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Repositories
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
