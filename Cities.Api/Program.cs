@@ -1,5 +1,6 @@
 using Cities.Application.Consumers;
 using Cities.Application.Mappings;
+using Cities.Application.Services;
 using Cities.Core.Features.Cities;
 using Cities.Core.Features.Countries;
 using Cities.Infrastructure.Data;
@@ -24,8 +25,8 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
         {
-            h.Username(builder.Configuration["RabbitMQ:Username"]);
-            h.Password(builder.Configuration["RabbitMQ:Password"]);
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
         });
 
         cfg.ConfigureEndpoints(ctx);
@@ -50,6 +51,8 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 // Repositories
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<ICityService, CityService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

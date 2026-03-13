@@ -1,5 +1,6 @@
 using Countries.Application.Consumer;
 using Countries.Application.Mappings;
+using Countries.Application.Services;
 using Countries.Core.Features.Countries;
 using Countries.Infrastructure.Data;
 using Countries.Infrastructure.Repositories;
@@ -29,8 +30,8 @@ builder.Services.AddMassTransit(x =>
     {
         cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
         {
-            h.Username(builder.Configuration["RabbitMQ:Username"]);
-            h.Password(builder.Configuration["RabbitMQ:Password"]);
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
         });
 
         cfg.ConfigureEndpoints(ctx);
@@ -49,6 +50,7 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Repositories
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
+builder.Services.AddScoped<ICountryService, CountryService>();
 
 var app = builder.Build();
 
