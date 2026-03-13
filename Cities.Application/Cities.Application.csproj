@@ -8,6 +8,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="16.1.0" />
+		<PackageReference Include="MassTransit" Version="9.0.1" />
 		<ProjectReference Include="..\Cities.Core\Cities.Core.csproj" />
 		<ProjectReference Include="..\TravelSwipe.Activities.Core\Activities.Core.csproj" />
 		<ProjectReference Include="..\TravelSwipe.Core\TravelSwipe.Core.csproj" />

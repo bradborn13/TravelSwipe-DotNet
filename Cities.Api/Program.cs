@@ -1,8 +1,10 @@
+using Cities.Application.Consumers;
 using Cities.Application.Mappings;
 using Cities.Core.Features.Cities;
 using Cities.Core.Features.Countries;
 using Cities.Infrastructure.Data;
 using Cities.Infrastructure.Repositories;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +22,21 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<CityDiscoveredConsumer>();  // references Application layer
 
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]);
+            h.Password(builder.Configuration["RabbitMQ:Password"]);
+        });
+
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 //PostgreSQL
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<CityDbContext>(options =>

@@ -1,4 +1,5 @@
 using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 using TravelSwipe.Activities.Application.Services.Activities;
@@ -41,7 +42,20 @@ builder.Services.AddHttpClient<FourSquareService>(client =>
     client.DefaultRequestHeaders.Authorization =
         new AuthenticationHeaderValue("Bearer", apiKey);
 });
+// MassTransit + RabbitMQ
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]);
+            h.Password(builder.Configuration["RabbitMQ:Password"]);
+        });
 
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 builder.Services.AddHttpClient<NominatimAPIService>(client =>
 {
     client.BaseAddress = new Uri(

@@ -1,8 +1,11 @@
+using Countries.Application.Consumer;
 using Countries.Application.Mappings;
 using Countries.Core.Features.Countries;
 using Countries.Infrastructure.Data;
 using Countries.Infrastructure.Repositories;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using TravelSwipe.Contracts.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +28,21 @@ var connectionStringPostgres = builder.Configuration.GetConnectionString("Postgr
 builder.Services.AddDbContext<CountryDbContext>(options =>
     options.UseNpgsql(connectionStringPostgres));
 
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<CountryDiscoveredConsumer>();
+
+    x.UsingRabbitMq((ctx, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]);
+            h.Password(builder.Configuration["RabbitMQ:Password"]);
+        });
+
+        cfg.ConfigureEndpoints(ctx);
+    });
+});
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
