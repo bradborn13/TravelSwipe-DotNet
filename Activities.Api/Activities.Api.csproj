@@ -11,7 +11,7 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="16.1.0" />
 		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
-		<PackageReference Include="MassTransit.RabbitMQ" Version="9.0.1" />
+		<PackageReference Include="MassTransit.RabbitMQ" Version="8.5.8" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.13" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.14" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.14" />
@@ -21,8 +21,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Activities.Application\Activities.Application.csproj" />
-	  <ProjectReference Include="..\Activities.Infrastructure\Activities.Infrastructure.csproj" />
+		<ProjectReference Include="..\Activities.Application\Activities.Application.csproj" />
+		<ProjectReference Include="..\Activities.Infrastructure\Activities.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>
