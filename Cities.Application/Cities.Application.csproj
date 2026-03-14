@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoMapper" Version="16.1.0" />
+		<PackageReference Include="AutoMapper" Version="16.1.1" />
 		<PackageReference Include="MassTransit" Version="8.5.8" />
 		<ProjectReference Include="..\Cities.Core\Cities.Core.csproj" />
 		<ProjectReference Include="..\TravelSwipe.Core\TravelSwipe.Core.csproj" />
