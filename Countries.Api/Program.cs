@@ -46,8 +46,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 // Repositories
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<ICountryService, CountryService>();

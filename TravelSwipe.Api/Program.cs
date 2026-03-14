@@ -33,7 +33,7 @@ builder.Services.AddCors(options =>
     });
 });
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
-builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 builder.Services.AddSingleton<MongoContext>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>

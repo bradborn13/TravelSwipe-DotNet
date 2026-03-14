@@ -86,8 +86,7 @@ builder.Services.AddHttpClient<SerpApiService>();
 builder.Services.AddHttpClient<NominatimAPIService>();
 
 // AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile));
-
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 // App Services
 builder.Services.AddScoped<IActivityService, ActivityService>();
 
