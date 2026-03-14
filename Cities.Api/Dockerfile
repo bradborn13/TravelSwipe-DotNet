@@ -16,10 +16,10 @@ RUN dotnet restore "Cities.Api/Cities.Api.csproj"
 COPY . .
  
 WORKDIR "/src/Cities.Api"
-RUN dotnet build "Cities.Api.csproj" -c Release -o /app/build
+RUN dotnet build "Cities.Api.csproj" -c Debug -o /app/build
  
 FROM build AS publish
-RUN dotnet publish "Cities.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Cities.Api.csproj" -c Debug -o /app/publish /p:UseAppHost=false
  
 FROM base AS final
 WORKDIR /app
