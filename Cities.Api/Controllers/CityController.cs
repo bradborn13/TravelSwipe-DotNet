@@ -1,6 +1,7 @@
 ﻿
 using Cities.Core.Features.Cities;
 using Microsoft.AspNetCore.Mvc;
+using TravelSwipe.Core.Features.Countries;
 
 namespace TravelSwipe.Api.Controllers
 {
@@ -19,8 +20,7 @@ namespace TravelSwipe.Api.Controllers
         public async Task<ActionResult<List<string>>> GetAllCities()
         {
             var cityList = await _cityService.GetAll();
-            if (cityList == null || !cityList.Any()) return NotFound($"No cities found .");
-            return Ok(cityList);
+            return Ok(cityList ?? new List<string>());
         }
 
 

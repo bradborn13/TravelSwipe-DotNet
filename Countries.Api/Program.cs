@@ -16,7 +16,15 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 //PostgreSQL
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<CountryDbContext>(options =>
@@ -59,6 +67,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.UseAuthorization();
 

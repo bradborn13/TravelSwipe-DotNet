@@ -21,8 +21,7 @@ namespace Country.Api.Controllers
         public async Task<ActionResult<List<CountryDto>>> GetAllCities()
         {
             var countryList = await _countryService.GetAll();
-            if (countryList == null || !countryList.Any()) return NotFound($"No countries found .");
-            return Ok(countryList);
+            return Ok(countryList ?? new List<CountryDto>());
         }
 
 

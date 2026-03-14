@@ -19,7 +19,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<ActivityDbContext>(options =>
     options.UseNpgsql(connectionStringPostgres));
@@ -99,7 +107,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
+
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
