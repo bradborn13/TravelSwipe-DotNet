@@ -7,7 +7,7 @@ using CountryModel = Countries.Core.Features.Countries.Country;
 namespace Country.Api.Controllers
 {
     [ApiController]
-    [Route("country")]
+    [Route("countries")]
     public class CountryController : ControllerBase
     {
         private readonly ICountryService _countryService;

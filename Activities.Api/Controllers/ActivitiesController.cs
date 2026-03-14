@@ -5,7 +5,7 @@ using Activity = TravelSwipe.Activities.Core.Features.Activities.Activity;
 namespace TravelSwipe.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("activities")]
     public class ActivitiesController : ControllerBase
     {
         private readonly IActivityService _activityService;

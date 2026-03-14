@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace TravelSwipe.Api.Controllers
 {
     [ApiController]
-    [Route("city")]
+    [Route("cities")]
     public class CityController : ControllerBase
     {
         private readonly ICityService _cityService;
