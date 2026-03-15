@@ -88,10 +88,7 @@ builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 builder.Services.AddScoped<ICityRepository, CityRepository>();
 
-// External Services
-builder.Services.AddHttpClient<FourSquareService>();
-builder.Services.AddHttpClient<SerpApiService>();
-builder.Services.AddHttpClient<NominatimAPIService>();
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
