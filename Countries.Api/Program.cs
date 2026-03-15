@@ -48,7 +48,7 @@ builder.Services.AddMassTransit(x =>
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = builder.Configuration["Redis:ConnectionString"]
+    options.Configuration = builder.Configuration["ConnectionStrings:Redis"]
         ?? "localhost:6379";
     options.InstanceName = "redis:";
 });
