@@ -11,5 +11,6 @@ namespace Countries.Core.Features.Countries
     {
         Task<List<Country>> GetAll();
         Task AddBatch(List<Country> countryList);
+        Task<List<string>> CheckNotRegisteredByAssociatedNames(List<List<string>> countryList);
     }
 }

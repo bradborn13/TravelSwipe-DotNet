@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace TravelSwipe.Contracts.Contracts
 {
-    public record CityDiscoveredEvent
+    public record CityRegisteredEvent
     {
-        public string Country { get; init; } = string.Empty;
+        public required string Country { get; init; }
         public string Municipality { get; init; } = string.Empty;
-        public List<string> AssociatedNames { get; init; }
-        public List<string>? AssociatedSlugs { get; set; }
+        public required string SlugName { get; set; }
         public string? Postcode { get; init; }
         public List<string>? State { get; init; }
         public string? DisplayName { get; init; }

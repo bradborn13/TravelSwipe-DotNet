@@ -8,14 +8,14 @@ using TravelSwipe.Contracts.Contracts;
 namespace Countries.Application.Consumer
 {
 
-    public class CountryDiscoveredConsumer : IConsumer<CountryDiscoveredEvent>
+    public class CountryDiscoveredConsumer : IConsumer<CountryRegisteredEvent>
     {
-        private readonly ILogger<CountryDiscoveredEvent> _logger;
+        private readonly ILogger<CountryRegisteredEvent> _logger;
         private readonly ICountryService _countryService;
         private readonly IMapper _mapper;
 
         public CountryDiscoveredConsumer(
-            ILogger<CountryDiscoveredEvent> logger,
+            ILogger<CountryRegisteredEvent> logger,
             ICountryService countryService,
             IMapper mapper)
         {
@@ -24,7 +24,7 @@ namespace Countries.Application.Consumer
             _mapper = mapper;
         }
 
-        public async Task Consume(ConsumeContext<CountryDiscoveredEvent> context)
+        public async Task Consume(ConsumeContext<CountryRegisteredEvent> context)
         {
             var @event = context.Message;
 
@@ -33,7 +33,13 @@ namespace Countries.Application.Consumer
                 @event.DisplayName
             );
 
-            var mappedCountry = _mapper.Map<Country>(@event);
+            var mappedCountry = new Country
+            {
+                DisplayName = @event.DisplayName,
+                AssociatedNames = new List<string> { @event.DisplayName },
+                AssociatedSlugs = new List<string> { @event.SlugName },
+                CountryCode = @event.CountryCode
+            };
             if (mappedCountry is null)
             {
                 _logger.LogWarning("Failed to map CountryDiscoveredEvent for {DisplayName}. Skipping.", @event.DisplayName);

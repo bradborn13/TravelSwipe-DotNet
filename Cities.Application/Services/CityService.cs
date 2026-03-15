@@ -22,7 +22,14 @@ namespace Cities.Application.Services
         }
         public async Task AddCities(List<City> cityList)
         {
-            await _repository.AddBatch(cityList);
+            var associatedNamesList = cityList
+                .Select(x => x.AssociatedNames ?? [])
+                .ToList(); var entitiesNotRegistered = await _repository.CheckNotRegisteredByAssociatedNames(associatedNamesList);
+            if (entitiesNotRegistered.Count > 0)
+            {
+                var missingCities = cityList.Select(x => entitiesNotRegistered.Contains(x.DisplayName));
+                await _repository.AddBatch(cityList);
+            }
         }
     }
 }

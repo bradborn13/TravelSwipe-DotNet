@@ -11,7 +11,7 @@ namespace Cities.Application.Mappings
         public MappingProfile()
         {
             CreateMap<City, CityDto>();
-            CreateMap<CityDiscoveredEvent, City>();
+            CreateMap<CityRegisteredEvent, City>();
         }
     }
 }

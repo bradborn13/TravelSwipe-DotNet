@@ -48,6 +48,18 @@ namespace Cities.Infrastructure.Repositories
             await _context.City.AddRangeAsync(cityList);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<string>> CheckNotRegisteredByAssociatedNames(List<List<string>> cityList)
+        {
+            var flatList = cityList.SelectMany(x => x).ToList();
+
+            var existingNames = await _context.City
+                              .Where(c => c.AssociatedNames != null && c.AssociatedNames.Any(n => flatList.Contains(n)))
+                              .SelectMany(c => c.AssociatedNames ?? new List<string>())
+                              .ToListAsync();
+
+            var nonExistingNames = flatList.Where(n => !existingNames.Contains(n)).ToList();
+            return nonExistingNames;
+        }
 
 
     }

@@ -29,7 +29,7 @@ namespace TravelSwipe.Activities.Infrastructure.Repositories
             return result.ModifiedCount > 0;
         }
 
-        public async Task<IEnumerable<Activity>> GetActivitiesByCity(string city)
+        public async Task<List<Activity>> GetActivitiesByCity(string city)
         {
             var result = await _activities.AsQueryable()
                               .Where(a => a.City.ToLowerInvariant() == city.ToLowerInvariant())

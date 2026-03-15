@@ -22,6 +22,18 @@ namespace Countries.Infrastructure.Repositories
 
             return countries;
         }
+        public async Task<List<string>> CheckNotRegisteredByAssociatedNames(List<List<string>> countryList)
+        {
+            var flatList = countryList.SelectMany(x => x).ToList();
+
+            var existingNames = await _context.Country
+                              .Where(c => c.AssociatedNames != null && c.AssociatedNames.Any(n => flatList.Contains(n)))
+                              .SelectMany(c => c.AssociatedNames ?? new List<string>())
+                              .ToListAsync();
+
+            var nonExistingNames = flatList.Where(n => !existingNames.Contains(n)).ToList();
+            return nonExistingNames;
+        }
         public async Task AddBatch(List<Country> countryList)
         {
             await _context.Country.AddRangeAsync(countryList);

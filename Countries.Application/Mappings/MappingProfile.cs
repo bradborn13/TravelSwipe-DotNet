@@ -13,7 +13,7 @@ namespace Countries.Application.Mappings
         {
 
             CreateMap<Country, CountryDto>();
-            CreateMap<CountryDiscoveredEvent, Country>();
+            CreateMap<CountryRegisteredEvent, Country>();
         }
     }
 }

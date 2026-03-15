@@ -7,14 +7,14 @@ using TravelSwipe.Contracts.Contracts;
 
 namespace Cities.Application.Consumers;
 
-public class CityDiscoveredConsumer : IConsumer<CityDiscoveredEvent>
+public class CityDiscoveredConsumer : IConsumer<CityRegisteredEvent>
 {
-    private readonly ILogger<CityDiscoveredConsumer> _logger;
+    private readonly ILogger<CityRegisteredEvent> _logger;
     private readonly ICityService _cityService;
     private readonly IMapper _mapper;
 
     public CityDiscoveredConsumer(
-        ILogger<CityDiscoveredConsumer> logger,
+        ILogger<CityRegisteredEvent> logger,
         ICityService cityService,
         IMapper mapper)
     {
@@ -23,7 +23,7 @@ public class CityDiscoveredConsumer : IConsumer<CityDiscoveredEvent>
         _mapper = mapper;
     }
 
-    public async Task Consume(ConsumeContext<CityDiscoveredEvent> context)
+    public async Task Consume(ConsumeContext<CityRegisteredEvent> context)
     {
         var @event = context.Message;
 
@@ -33,7 +33,17 @@ public class CityDiscoveredConsumer : IConsumer<CityDiscoveredEvent>
             @event.Country
         );
 
-        var mappedCity = _mapper.Map<City>(@event);
+        var mappedCity = new City
+        {
+            DisplayName = @event.DisplayName ?? string.Empty,
+            Country = @event.Country,
+            Municipality = @event.Municipality,
+            Postcode = @event.Postcode,
+            State = @event.State,
+            AssociatedSlugs = new List<string> { @event.SlugName },
+            AssociatedNames = new List<string> { @event.DisplayName ?? string.Empty }
+        };
+
         if (mappedCity is null)
         {
             _logger.LogWarning("Failed to map CityDiscoveredEvent for {Municipality}. Skipping.", @event.Municipality);

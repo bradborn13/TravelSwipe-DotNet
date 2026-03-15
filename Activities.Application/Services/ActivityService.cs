@@ -1,14 +1,16 @@
 ﻿using AutoMapper;
+using MassTransit;
+using MassTransit.Futures.Contracts;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Logging;
+using Slugify;
 using System;
 using System.Text.Json;
-using TravelSwipe.Application.ExternalServices;
 using TravelSwipe.Activities.Core;
 using TravelSwipe.Activities.Core.Features.Activities;
-using Slugify;
 using TravelSwipe.Activities.Core.Features.Cities;
 using TravelSwipe.Activities.Core.Features.Countries;
-using MassTransit;
+using TravelSwipe.Application.ExternalServices;
 using TravelSwipe.Contracts.Contracts;
 namespace TravelSwipe.Activities.Application.Services.Activities
 {
@@ -50,12 +52,34 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             var activityList = await _repository.GetActivitiesByCity(city);
             if (activityList.Count() > 0)
             {
+                var slugHelper = new SlugHelper();
                 var json = JsonSerializer.Serialize(activityList);
                 await _cache.SetStringAsync(cacheKey, json,
                     new DistributedCacheEntryOptions
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
                     });
+                await _publishEndpoint.Publish(new CityRegisteredEvent
+                {
+                    DisplayName = activityList[0].City ?? "Unknown",
+                    SlugName = slugHelper.GenerateSlug(activityList[0].City),
+                    Country = activityList[0]?.Details?.Country ?? "",
+                    Municipality = activityList[0]?.Details?.Region ?? "",
+                    State = [],
+                    Postcode = activityList[0]?.Details?.Postcode ?? "",
+                    DiscoveredAt = DateTime.UtcNow
+                });
+                if (!string.IsNullOrEmpty(activityList[0]?.Details?.Country))
+                {
+                    await _publishEndpoint.Publish(new CountryRegisteredEvent
+                    {
+                        DisplayName = activityList[0].Details?.Country ?? "",
+                        CountryCode = "",
+                        SlugName = slugHelper.GenerateSlug(activityList[0].Details?.Country ?? "Unknown"),
+                        DiscoveredAt = DateTime.UtcNow
+                    });
+                }
+
                 return _mapper.Map<List<ActivityDto>>(activityList);
             }
             else
@@ -102,7 +126,7 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             var geoLocationList = await _nominatimService.FetchLocationInfo(activityList);
             var slugHelper = new SlugHelper();
 
-        //TODO: checked if the city is registerd, if not return them add them locally but also send event
+            //TODO: checked if the city is registerd, if not return them add them locally but also send event
             // var cityNamesList = geoLocationList
             //     .Select(x =>  slugHelper.GenerateSlug(x?.Address?.City))            
             //     .ToList();
@@ -117,37 +141,39 @@ namespace TravelSwipe.Activities.Application.Services.Activities
                 {
                     Country = x.Address?.Country ?? "",
                     AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
-                    AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown")  },
+                    AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown") },
                     DisplayName = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
                 })
                 .ToList();
             var countryList = geoLocationList
              .Select(x => new Country
              {
-                 DisplayName = x.Address?.Country,
-                 AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country) },
-                 AssociatedNames = new List<string> { x?.Address?.Country },
-                 CountryCode = x.Address?.CountryCode ?? ""
+                 DisplayName = x.Address?.Country ?? string.Empty,
+                 AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country ?? string.Empty) },
+                 AssociatedNames = new List<string> { x?.Address?.Country ?? string.Empty },
+                 CountryCode = x?.Address?.CountryCode ?? ""
              })
              .ToList();
             await _cityRepository.AddBatch(cityList);
             await _countryRepository.AddBatch(countryList);
             foreach (var geo in geoLocationList)
             {
-                await _publishEndpoint.Publish(new CityDiscoveredEvent
+                await _publishEndpoint.Publish(new CityRegisteredEvent
                 {
                     DisplayName = geo.Address?.City ?? "Unknown",
-                    Country = geo.Address?.Country ?? "",
-                    Municipality = geo.Address?.Municipality ?? "",
-                    State = geo.Address?.State?.Split(',').ToList(),
-                    Postcode = geo.Address?.Postcode ?? "",
+                    SlugName = slugHelper.GenerateSlug(geo?.Address?.City ?? "Unknown"),
+                    Country = geo?.Address?.Country ?? "",
+                    Municipality = geo?.Address?.Municipality ?? "",
+                    State = geo?.Address?.State?.Split(new[] { ",", "-" }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+                    Postcode = geo?.Address?.Postcode ?? "",
                     DiscoveredAt = DateTime.UtcNow
                 });
 
-                await _publishEndpoint.Publish(new CountryDiscoveredEvent
+                await _publishEndpoint.Publish(new CountryRegisteredEvent
                 {
-                    DisplayName = geo.Address?.Country ?? "",
-                    CountryCode = geo.Address?.CountryCode ?? "",
+                    DisplayName = geo?.Address?.Country ?? "",
+                    CountryCode = geo?.Address?.CountryCode ?? "",
+                    SlugName = slugHelper.GenerateSlug(geo?.Address?.Country ?? "Unknown"),
                     DiscoveredAt = DateTime.UtcNow
                 });
             }

@@ -1,5 +1,7 @@
 ﻿
 
+using Cities.Core.Features.Countries;
+
 namespace Cities.Core.Features.Cities
 {
     public interface ICityRepository
@@ -8,6 +10,8 @@ namespace Cities.Core.Features.Cities
         Task<List<City>> GetAll();
         Task<List<string>> FindCitiesNotRegisterd(List<String> cityList);
         Task AddBatch(List<City> cityList);
+        Task<List<string>> CheckNotRegisteredByAssociatedNames(List<List<string>> countryList);
+
 
     }
 }

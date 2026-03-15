@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace TravelSwipe.Contracts.Contracts
 {
-    public class CountryDiscoveredEvent
+    public record CountryRegisteredEvent
     {
-        public string CountryCode { get; init; } = string.Empty;
+        public required string CountryCode { get; init; }
         public string DisplayName { get; init; } = string.Empty;
-        public List<string> AssociatedNames { get; init; }
-        public List<string>? AssociatedSlugs { get; set; }
+        public required string SlugName { get; set; }
         public DateTime DiscoveredAt { get; init; } = DateTime.UtcNow;
 
 

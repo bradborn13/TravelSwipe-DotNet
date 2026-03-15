@@ -9,6 +9,6 @@ namespace Cities.Core.Features.Cities
 {
     public interface ICityMessageHandler
     {
-        Task HandleCityDiscoveredAsync(CityDiscoveredEvent @event, CancellationToken cancellationToken = default);
+        Task HandleCityRegisteredAsync(CityRegisteredEvent @event, CancellationToken cancellationToken = default);
     }
 }

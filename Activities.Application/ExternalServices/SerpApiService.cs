@@ -43,10 +43,10 @@ namespace TravelSwipe.Application.ExternalServices
                 Title = dto.Title,
                 Source = dto.Original,
                 Link = dto.Link,
-                OriginalHeight = double.Parse(dto.Original_height),
+                OriginalHeight = double.Parse(dto.Original_height ?? string.Empty),
                 OriginalWidth = dto.Original_width,
                 Thumbnail = dto.Thumbnail,
-                Position = int.Parse(dto.Position)
+                Position = int.Parse(dto.Position ?? string.Empty)
 
             };
         }

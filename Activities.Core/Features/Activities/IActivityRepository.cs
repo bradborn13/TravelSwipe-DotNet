@@ -8,7 +8,7 @@ namespace TravelSwipe.Activities.Core.Features.Activities
 {
     public interface IActivityRepository
     {
-        Task<IEnumerable<Activity>> GetActivitiesByCity(string city);
+        Task<List<Activity>> GetActivitiesByCity(string city);
         Task<List<Activity>> GetActivitiesWithoutImages(string city);
         Task<bool> AddImage(string activityName, string city, List<ImageURL> images);
         Task InsertActivityBatch(List<Activity> activities);

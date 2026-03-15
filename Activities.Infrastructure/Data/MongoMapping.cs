@@ -18,8 +18,7 @@ namespace TravelSwipe.Activities.Infrastructure.Data
             new CamelCaseElementNameConvention(),
             new IgnoreExtraElementsConvention(true)
         };
-            ConventionRegistry.Register("TravelSwipeConventions", pack, t => t.FullName.StartsWith("TravelSwipe"));
-
+            ConventionRegistry.Register("TravelSwipeConventions", pack, t => t.FullName?.StartsWith("TravelSwipe") ?? false);
             // 2. Map 'Activity' (The Main Document)
             if (!BsonClassMap.IsClassMapRegistered(typeof(Activity)))
             {
