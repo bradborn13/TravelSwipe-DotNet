@@ -28,7 +28,7 @@ namespace Countries.Infrastructure.Repositories
 
             var existingNames = await _context.Country
                               .Where(c => c.AssociatedNames != null && c.AssociatedNames.Any(n => flatList.Contains(n)))
-                              .SelectMany(c => c.AssociatedNames ?? new List<string>())
+                              .SelectMany(c => c.AssociatedNames)
                               .ToListAsync();
 
             var nonExistingNames = flatList.Where(n => !existingNames.Contains(n)).ToList();
