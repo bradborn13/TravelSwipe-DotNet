@@ -32,7 +32,7 @@ builder.Services.AddDbContext<CountryDbContext>(options =>
 
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<CountryDiscoveredConsumer>();
+    x.AddConsumer<CountryRegisteredConsumer>();
 
     x.UsingRabbitMq((ctx, cfg) =>
     {

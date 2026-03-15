@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<CityDiscoveredConsumer>();  // references Application layer
+    x.AddConsumer<CityRegisteredConsumer>();  // references Application layer
 
     x.UsingRabbitMq((ctx, cfg) =>
     {

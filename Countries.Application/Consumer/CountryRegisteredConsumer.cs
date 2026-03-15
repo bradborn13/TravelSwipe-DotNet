@@ -8,14 +8,14 @@ using TravelSwipe.Contracts.Contracts;
 namespace Countries.Application.Consumer
 {
 
-    public class CountryDiscoveredConsumer : IConsumer<CountryRegisteredEvent>
+    public class CountryRegisteredConsumer : IConsumer<CountryRegisteredEvent>
     {
-        private readonly ILogger<CountryRegisteredEvent> _logger;
+        private readonly ILogger<CountryRegisteredConsumer> _logger;
         private readonly ICountryService _countryService;
         private readonly IMapper _mapper;
 
-        public CountryDiscoveredConsumer(
-            ILogger<CountryRegisteredEvent> logger,
+        public CountryRegisteredConsumer(
+            ILogger<CountryRegisteredConsumer> logger,
             ICountryService countryService,
             IMapper mapper)
         {
@@ -36,9 +36,9 @@ namespace Countries.Application.Consumer
             var mappedCountry = new Country
             {
                 DisplayName = @event.DisplayName,
-                AssociatedNames = new List<string> { @event.DisplayName },
-                AssociatedSlugs = new List<string> { @event.SlugName },
-                CountryCode = @event.CountryCode
+                AssociatedNames = new List<string> { @event.DisplayName ?? string.Empty },
+                AssociatedSlugs = new List<string> { @event.SlugName ?? string.Empty },
+                CountryCode = @event.CountryCode ?? string.Empty
             };
             if (mappedCountry is null)
             {

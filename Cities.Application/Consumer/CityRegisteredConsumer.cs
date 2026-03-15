@@ -7,14 +7,14 @@ using TravelSwipe.Contracts.Contracts;
 
 namespace Cities.Application.Consumers;
 
-public class CityDiscoveredConsumer : IConsumer<CityRegisteredEvent>
+public class CityRegisteredConsumer : IConsumer<CityRegisteredEvent>
 {
-    private readonly ILogger<CityRegisteredEvent> _logger;
+    private readonly ILogger<CityRegisteredConsumer> _logger;
     private readonly ICityService _cityService;
     private readonly IMapper _mapper;
 
-    public CityDiscoveredConsumer(
-        ILogger<CityRegisteredEvent> logger,
+    public CityRegisteredConsumer(
+        ILogger<CityRegisteredConsumer> logger,
         ICityService cityService,
         IMapper mapper)
     {
