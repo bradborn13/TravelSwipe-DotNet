@@ -14,10 +14,14 @@ namespace TravelSwipe.Infrastructure.Mappings
             CreateMap<Categories, CategoryDto>();
             CreateMap<FourSquareActivities, Activity>();
             CreateMap<Details, DetailsDto>();
+            CreateMap<DetailsDto, Details>();
             CreateMap<SocialMedia, SocialMediaDto>();
-            CreateMap<RelatedPlaces, RelatedPlacesDto>()
+            CreateMap<SocialMediaDto, SocialMedia>();
+            CreateMap<RelatedPlaces, RelatedPlacesDto>();
+            CreateMap<RelatedPlacesDto, RelatedPlaces>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories));
             CreateMap<ImageURLDto, ImageURL>();
+            CreateMap<ImageURL, ImageURLDto>();
             CreateMap<Activity, ActivityDto>();
             CreateMap<FSCategory, Categories>();
             CreateMap<FSLocation, Details>();

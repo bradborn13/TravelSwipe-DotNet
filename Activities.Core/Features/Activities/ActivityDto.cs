@@ -32,6 +32,13 @@ namespace TravelSwipe.Activities.Core.Features.Activities
     public record SocialMediaDto(string Instagram, string FacebookId);
     public record CategoryDto(string Name, string ShortName);
     public record RelatedPlacesDto(string Name, List<CategoryDto> Categories);
-    public record ImageURLDto(double OriginalHeight, double OriginalWidth, string Thumbnail, string Title, string Source, string Link, int Position, string ImgSource);
+    public record ImageURLDto(double? OriginalHeight,
+        double? OriginalWidth,
+        string Thumbnail,
+        string Title,
+        string Source,
+        string Link,
+        int Position,
+        string ImgSource);
 
 }
