@@ -23,10 +23,16 @@ namespace Countries.Application.Services
             var countryList = await _repository.GetAll();
             return _mapper.Map<List<CountryDto>>(countryList);
         }
-        public async Task AddCountries(List<Country> cityList)
+        public async Task AddCountries(List<Country> countryList)
         {
-            await _repository.AddBatch(cityList);
+            var assciatedNamesList = countryList.Where(x => x.AssociatedNames != null).Select(x => x.AssociatedNames!).ToList();
+            var missingCountry = await _repository.CheckNotRegisteredByAssociatedNames(assciatedNamesList);
+            if (missingCountry.Count() > 0)
+            {
+                await _repository.AddBatch(countryList);
+            }
             return;
+
         }
 
     }

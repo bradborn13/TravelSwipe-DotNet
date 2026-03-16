@@ -84,7 +84,8 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             }
             else
             {
-                return await this.ScrapeActivities(city);
+                //return await this.ScrapeActivities(city);
+                return new List<ActivityDto>();
             }
         }
         private async Task<List<ActivityDto>> ScrapeActivities(string city)

@@ -45,7 +45,6 @@ namespace Countries.Application.Consumer
                 _logger.LogWarning("Failed to map CountryDiscoveredEvent for {DisplayName}. Skipping.", @event.DisplayName);
                 return;
             }
-
             await _countryService.AddCountries(new List<Country> { mappedCountry });
         }
     }
