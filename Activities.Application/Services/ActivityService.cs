@@ -1,8 +1,10 @@
-﻿using AutoMapper;
+﻿using Activities.Api.Metrics;
+using AutoMapper;
 using MassTransit;
 using MassTransit.Futures.Contracts;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Logging;
+using Prometheus;
 using Slugify;
 using System;
 using System.Text.Json;
@@ -26,8 +28,10 @@ namespace TravelSwipe.Activities.Application.Services.Activities
         private readonly SerpApiService _serpApiService;
         private readonly FourSquareService _foursquareService;
         private readonly NominatimAPIService _nominatimService;
-        public ActivityService(IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, SerpApiService serpApiService, ICityRepository cityRepository, FourSquareService forsquareService, NominatimAPIService nominatimService, IPublishEndpoint publishEndpoint)
+        ActivityMetrics _metrics;
+        public ActivityService(ActivityMetrics metrics, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, SerpApiService serpApiService, ICityRepository cityRepository, FourSquareService forsquareService, NominatimAPIService nominatimService, IPublishEndpoint publishEndpoint)
         {
+            _metrics = metrics;
             _cache = cache;
             _repository = repository;
             _mapper = mapper;
@@ -45,6 +49,7 @@ namespace TravelSwipe.Activities.Application.Services.Activities
             var cached = await _cache.GetStringAsync(cacheKey);
             if (cached != null)
             {
+                _metrics.GetActivitiesViaReddis.Inc();
                 var deserialized = JsonSerializer.Deserialize<List<ActivityDto>>(cached);
                 if (deserialized != null)
                     return deserialized;
@@ -79,13 +84,19 @@ namespace TravelSwipe.Activities.Application.Services.Activities
                         DiscoveredAt = DateTime.UtcNow
                     });
                 }
-
+                _metrics.GetActivitiesViaDb.Inc();
                 return _mapper.Map<List<ActivityDto>>(activityList);
             }
             else
             {
-                //return await this.ScrapeActivities(city);
-                return new List<ActivityDto>();
+
+                using (_metrics.ActivityScraptingEventsDuration.NewTimer())
+                {
+
+                    return await this.ScrapeActivities(city);
+                }
+
+                //return new List<ActivityDto>();
             }
         }
         private async Task<List<ActivityDto>> ScrapeActivities(string city)
@@ -103,15 +114,20 @@ namespace TravelSwipe.Activities.Application.Services.Activities
         }
         public async Task<List<ActivityDto>> ScrapePhotosForActivity(string city)
         {
-            var activitiesWithoutImages = await _repository.GetActivitiesWithoutImages(city);
-            if (activitiesWithoutImages == null || activitiesWithoutImages.Count() > 0)
-                return [];
-            foreach (var activiti in activitiesWithoutImages)
+            using (_metrics.ActivityScraptingPhotosDuration.NewTimer())
             {
-                var externalImages = await _serpApiService.GetImages(activiti.Name, city);
-                await _repository.AddImage(activiti.Name, city, externalImages);
+                var activitiesWithoutImages = await _repository.GetActivitiesWithoutImages(city);
+                if (activitiesWithoutImages == null || activitiesWithoutImages.Count() == 0)
+                    return [];
+                foreach (var activity in activitiesWithoutImages)
+                {
+                    var externalImages = await _serpApiService.GetImages(activity.Name, city);
+                    await _repository.AddImage(activity.Name, city, externalImages);
+                }
+                return [];
+
             }
-            return [];
+
         }
         public async Task ScrapeCityAndCountryForActivity()
         {

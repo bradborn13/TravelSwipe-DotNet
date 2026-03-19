@@ -18,13 +18,13 @@ namespace TravelSwipe.Application.ExternalServices
     public class OrganicResult
     {
         public string? Original { get; set; }
-        public string? Original_height { get; set; }
-        public double? Original_width { get; set; }
+        public int? Original_height { get; set; }
+        public int? Original_width { get; set; }
         public string? Thumbnail { get; set; }
         public string? Title { get; set; }
         public string? Source { get; set; }
         public string? Link { get; set; }
-        public string? Position { get; set; }
+        public int? Position { get; set; }
     }
     public class SerpApiService
     {
@@ -43,10 +43,10 @@ namespace TravelSwipe.Application.ExternalServices
                 Title = dto.Title,
                 Source = dto.Original,
                 Link = dto.Link,
-                OriginalHeight = double.Parse(dto.Original_height ?? string.Empty),
+                OriginalHeight = dto.Original_height,
                 OriginalWidth = dto.Original_width,
                 Thumbnail = dto.Thumbnail,
-                Position = int.Parse(dto.Position ?? string.Empty)
+                Position = dto.Position
 
             };
         }

@@ -1,6 +1,8 @@
+using Activities.Api.Metrics;
 using AutoMapper;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Prometheus;
 using System.Net.Http.Headers;
 using TravelSwipe.Activities.Application.Services.Activities;
 using TravelSwipe.Activities.Core.Features.Activities;
@@ -83,6 +85,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "redis:";
 });
 
+
 // Repositories
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<ICountryRepository, CountryRepository>();
@@ -94,6 +97,7 @@ builder.Services.AddScoped<ICityRepository, CityRepository>();
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 // App Services
 builder.Services.AddScoped<IActivityService, ActivityService>();
+builder.Services.AddSingleton<ActivityMetrics>();
 
 var app = builder.Build();
 
@@ -103,6 +107,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.MapMetrics();
+
+
 app.UseHttpsRedirection();
 
 app.UseCors();
@@ -110,5 +117,6 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapMetrics();
 
 app.Run();

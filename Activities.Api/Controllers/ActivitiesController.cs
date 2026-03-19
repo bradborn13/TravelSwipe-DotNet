@@ -16,26 +16,24 @@ namespace TravelSwipe.Api.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<List<Activity>>> GetActivities([FromQuery] string city)
+        public async Task<ActionResult<List<ActivityDto>>> GetActivities([FromQuery] string city)
         {
             if (string.IsNullOrWhiteSpace(city))
             {
                 return BadRequest("City parameter is required.");
             }
             var activities = await _activityService.GetActivitiesByCity(city);
-            if (activities == null || !activities.Any()) return NotFound($"No activities found in {city}.");
-            return Ok(activities);
+            return Ok(activities ?? new List<ActivityDto>());
         }
         [HttpPost("update/images")]
-        public async Task<ActionResult<IEnumerable<Activity>>> UpdateImages([FromQuery] string city)
+        public async Task<ActionResult<List<ActivityDto>>> UpdateImages([FromQuery] string city)
         {
             if (string.IsNullOrWhiteSpace(city))
             {
                 return BadRequest("City parameter is required.");
             }
             var activities = await _activityService.ScrapePhotosForActivity(city);
-            if (activities == null || !activities.Any()) return NotFound($"No activities found in {city}.");
-            return Ok(activities);
+            return Ok(activities ?? new List<ActivityDto>());
         }
         //[HttpGet("find/country")]
         //public async Task<IActionResult> FetchLocationDetails()
