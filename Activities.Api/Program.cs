@@ -57,6 +57,8 @@ builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((ctx, cfg) =>
     {
+        cfg.UsePrometheusMetrics();
+
         cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
         {
             h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
@@ -107,7 +109,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapMetrics();
 
 
 app.UseHttpsRedirection();
