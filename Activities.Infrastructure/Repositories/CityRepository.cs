@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TravelSwipe.Activities.Core.Features.Cities;
-using TravelSwipe.Activities.Core.Features.Countries;
-using TravelSwipe.Infrastructure.data;
+using Activities.Core.Features.Cities;
+using Activities.Core.Features.Countries;
+using Activities.Infrastructure.Data;
 
-namespace TravelSwipe.Infrastructure.Repositories
+namespace Activities.Infrastructure.Repositories
 {
 
     public class CityRepository : ICityRepository

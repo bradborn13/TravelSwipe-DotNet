@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace TravelSwipe.Activities.Infrastructure.Migrations
+namespace Activities.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration

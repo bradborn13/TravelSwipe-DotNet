@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace TravelSwipe.Activities.Core.Features.Activities
+namespace Activities.Core.Features.Activities
 {
 
 

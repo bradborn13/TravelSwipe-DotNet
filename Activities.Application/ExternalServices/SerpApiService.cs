@@ -8,8 +8,8 @@ using System.Net.Http.Json;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-using TravelSwipe.Activities.Core.Features.Activities;
-namespace TravelSwipe.Application.ExternalServices
+using Activities.Core.Features.Activities;
+namespace Application.ExternalServices
 {
     public class SerpResponse
     {
@@ -21,9 +21,9 @@ namespace TravelSwipe.Application.ExternalServices
         public int? Original_height { get; set; }
         public int? Original_width { get; set; }
         public string? Thumbnail { get; set; }
-        public string? Title { get; set; }
         public string? Source { get; set; }
         public string? Link { get; set; }
+        public string? Title { get; set; }
         public int? Position { get; set; }
     }
     public class SerpApiService

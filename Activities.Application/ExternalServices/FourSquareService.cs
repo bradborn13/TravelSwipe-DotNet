@@ -6,9 +6,9 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TravelSwipe.Activities.Core.Features.Activities;
+using Activities.Core.Features.Activities;
 
-namespace TravelSwipe.Application.ExternalServices
+namespace Application.ExternalServices
 {
     public class FourSquareService
     {

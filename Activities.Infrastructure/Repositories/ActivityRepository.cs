@@ -1,9 +1,9 @@
 ﻿using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using TravelSwipe.Activities.Core.Features.Activities;
-using TravelSwipe.Activities.Infrastructure.Data;
+using Activities.Core.Features.Activities;
+using Activities.Infrastructure.Data;
 
-namespace TravelSwipe.Activities.Infrastructure.Repositories
+namespace Activities.Infrastructure.Repositories
 {
 
     public class ActivityRepository : IActivityRepository
@@ -78,6 +78,7 @@ namespace TravelSwipe.Activities.Infrastructure.Repositories
 
             Console.WriteLine($"Upserts: {result.Upserts.Count}, Modified: {result.ModifiedCount}");
         }
+
         public async Task<List<Activity>> GetActivitiesWithoutImages(string city)
         {
             var filter = Builders<Activity>.Filter.And(
@@ -89,7 +90,7 @@ namespace TravelSwipe.Activities.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<List<CityGeoLocation>> GetUniqueCountryList()
+        public async Task<List<CityGeoLocation>> GetUniqueCityList()
         {
             var pipeline = new EmptyPipelineDefinition<Activity>()
            .Match(x =>

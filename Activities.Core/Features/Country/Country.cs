@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TravelSwipe.Activities.Core.Features.Countries
+namespace Activities.Core.Features.Countries
 {
     public class Country
     {

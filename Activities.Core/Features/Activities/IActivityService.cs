@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TravelSwipe.Activities.Core.Features.Activities
+namespace Activities.Core.Features.Activities
 {
     public interface IActivityService
     {

@@ -4,9 +4,9 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Conventions;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Serializers;
-using TravelSwipe.Activities.Core.Features.Activities;
+using Activities.Core.Features.Activities;
 
-namespace TravelSwipe.Activities.Infrastructure.Data
+namespace Activities.Infrastructure.Data
 {
     public static class MongoMapping
     {

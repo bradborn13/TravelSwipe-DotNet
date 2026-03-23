@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TravelSwipe.Activities.Core.Features.Activities;
+using Activities.Core.Features.Activities;
 
-namespace TravelSwipe.Activities.Infrastructure.Data
+namespace Activities.Infrastructure.Data
 {
     public class MongoContext
     {

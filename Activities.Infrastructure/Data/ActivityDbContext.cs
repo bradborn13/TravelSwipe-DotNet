@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TravelSwipe.Activities.Core.Features.Cities;
-using TravelSwipe.Activities.Core.Features.Countries;
+using Activities.Core.Features.Cities;
+using Activities.Core.Features.Countries;
 
-namespace TravelSwipe.Infrastructure.data
+namespace Activities.Infrastructure.Data
 {
     public class ActivityDbContext : DbContext
     {

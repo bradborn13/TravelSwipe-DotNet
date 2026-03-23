@@ -4,16 +4,15 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
 using System.Net.Http.Headers;
-using TravelSwipe.Activities.Application.Services.Activities;
-using TravelSwipe.Activities.Core.Features.Activities;
-using TravelSwipe.Activities.Core.Features.Cities;
-using TravelSwipe.Activities.Core.Features.Countries;
-using TravelSwipe.Activities.Infrastructure.Data;
-using TravelSwipe.Activities.Infrastructure.Repositories;
-using TravelSwipe.Application.ExternalServices;
-using TravelSwipe.Infrastructure.data;
-using TravelSwipe.Infrastructure.Mappings;
-using TravelSwipe.Infrastructure.Repositories;
+using Activities.Application.Services.Activities;
+using Activities.Core.Features.Activities;
+using Activities.Core.Features.Cities;
+using Activities.Core.Features.Countries;
+using Activities.Infrastructure.Data;
+using Activities.Infrastructure.Repositories;
+using Application.ExternalServices;
+using Infrastructure.Mappings;
+using Activitie.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 

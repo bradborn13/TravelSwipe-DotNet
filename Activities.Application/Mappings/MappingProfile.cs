@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using TravelSwipe.Activities.Core.Features.Activities;
+using Activities.Core.Features.Activities;
 
-namespace TravelSwipe.Infrastructure.Mappings
+namespace Infrastructure.Mappings
 {
     public class MappingProfile : Profile
     {

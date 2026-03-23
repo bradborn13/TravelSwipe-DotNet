@@ -8,13 +8,13 @@ using Prometheus;
 using Slugify;
 using System;
 using System.Text.Json;
-using TravelSwipe.Activities.Core;
-using TravelSwipe.Activities.Core.Features.Activities;
-using TravelSwipe.Activities.Core.Features.Cities;
-using TravelSwipe.Activities.Core.Features.Countries;
-using TravelSwipe.Application.ExternalServices;
+
+using Application.ExternalServices;
 using TravelSwipe.Contracts.Contracts;
-namespace TravelSwipe.Activities.Application.Services.Activities
+using Activities.Core.Features.Activities;
+using Activities.Core.Features.Cities;
+using Activities.Core.Features.Countries;
+namespace Activities.Application.Services.Activities
 {
     public class ActivityService : IActivityService
     {
@@ -131,7 +131,7 @@ namespace TravelSwipe.Activities.Application.Services.Activities
         }
         public async Task ScrapeCityAndCountryForActivity()
         {
-            var activityList = await _repository.GetUniqueCountryList();
+            var activityList = await _repository.GetUniqueCityList();
 
             var citylist = activityList.Select(x => x.City).ToList();
 

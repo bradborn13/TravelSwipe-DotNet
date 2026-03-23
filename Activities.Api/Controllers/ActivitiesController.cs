@@ -1,8 +1,7 @@
+using Activities.Core.Features.Activities;
 using Microsoft.AspNetCore.Mvc;
-using TravelSwipe.Activities.Core.Features.Activities;
-using Activity = TravelSwipe.Activities.Core.Features.Activities.Activity;
 
-namespace TravelSwipe.Api.Controllers
+namespace Activities.Api.Controllers
 {
     [ApiController]
     [Route("activities")]

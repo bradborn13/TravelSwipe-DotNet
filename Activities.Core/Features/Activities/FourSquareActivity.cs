@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using Newtonsoft.Json;
-namespace TravelSwipe.Activities.Core.Features.Activities
+namespace Activities.Core.Features.Activities
 {
     public class FourSquareActivities
     {

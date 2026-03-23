@@ -2,11 +2,7 @@
 using Cities.Core.Features.Cities;
 using Cities.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Cities.Infrastructure.Repositories
 {
@@ -54,12 +50,26 @@ namespace Cities.Infrastructure.Repositories
 
             var existingNames = await _context.City
                               .Where(c => c.AssociatedNames != null && c.AssociatedNames.Any(n => flatList.Contains(n)))
-                              .SelectMany(c => c.AssociatedNames )
-                              .ToListAsync();
+                              .SelectMany(c => c.AssociatedNames)
+                .ToListAsync();
 
             var nonExistingNames = flatList.Where(n => !existingNames.Contains(n)).ToList();
             return nonExistingNames;
         }
+        //public async Task<List<string>> CheckNotRegisteredByAssociatedNames(List<List<string>> cityList)
+        //{
+        //    var flatList = cityList.SelectMany(x => x).ToList();
+
+        //    var existingNames = await _context.Database
+        //        .SqlQueryRaw<string>(
+        //         @"SELECT DISTINCT unnest(associated_names) FROM ""City"" WHERE associated_names && @p0::text[]",
+        //     new object[] { flatList.ToArray() })
+
+        //        .ToListAsync();
+
+        //    var nonExistingNames = flatList.Where(n => !existingNames.Contains(n)).ToList();
+        //    return nonExistingNames;
+        //}
 
 
     }

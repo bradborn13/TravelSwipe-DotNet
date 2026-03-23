@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TravelSwipe.Infrastructure.data;
+using Activities.Infrastructure.Data;
 
 #nullable disable
 
-namespace TravelSwipe.Activities.Infrastructure.Migrations
+namespace Activities.Infrastructure.Migrations
 {
     [DbContext(typeof(ActivityDbContext))]
     [Migration("20260311124038_InitialCreate")]
