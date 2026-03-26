@@ -1,9 +1,6 @@
+using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
-using AutoMapper;
-using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Prometheus;
-using System.Net.Http.Headers;
+using Activities.Application.Consumer;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
@@ -11,8 +8,12 @@ using Activities.Core.Features.Countries;
 using Activities.Infrastructure.Data;
 using Activities.Infrastructure.Repositories;
 using Application.ExternalServices;
+using AutoMapper;
 using Infrastructure.Mappings;
-using Activitie.Infrastructure.Repositories;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Prometheus;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,6 +55,8 @@ builder.Services.AddHttpClient<FourSquareService>(client =>
 // MassTransit + RabbitMQ
 builder.Services.AddMassTransit(x =>
 {
+    x.AddConsumer<FoundActivityForLocationConsumer>();
+
     x.UsingRabbitMq((ctx, cfg) =>
     {
         cfg.UsePrometheusMetrics();

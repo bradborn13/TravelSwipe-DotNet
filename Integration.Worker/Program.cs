@@ -1,3 +1,4 @@
+using Integration.Application.Consumer;
 using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
@@ -29,6 +30,7 @@ builder.ConfigureServices((context, services) =>
     // MassTransit + RabbitMQ
     services.AddMassTransit(x =>
     {
+        x.AddConsumer<ScrapeLocationActivitiesConsumer>();
         x.UsingRabbitMq((ctx, cfg) =>
         {
             cfg.UsePrometheusMetrics();
