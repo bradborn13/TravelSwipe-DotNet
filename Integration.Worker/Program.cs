@@ -1,3 +1,4 @@
+using Infrastructure.Mappings;
 using Integration.Application.Consumer;
 using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
@@ -12,6 +13,8 @@ var builder = Host.CreateDefaultBuilder(args);
 
 builder.ConfigureServices((context, services) =>
 {
+    services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+
     services.AddScoped<INominatimService, NominatimAPIService>();
     services.AddScoped<ISerpService, SerpApiService>();
     var configuration = context.Configuration;
