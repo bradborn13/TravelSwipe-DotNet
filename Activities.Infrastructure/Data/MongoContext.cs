@@ -1,11 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Activities.Core.Features.Activities;
+using MongoDB.Bson.Serialization;
 
 namespace Activities.Infrastructure.Data
 {
@@ -19,6 +15,12 @@ namespace Activities.Infrastructure.Data
 
             // 2. Specify your database name (same as used in Node.js)
             _database = client.GetDatabase("travelswipe");
+            BsonClassMap.RegisterClassMap<Activity>(cm =>
+            {
+                cm.AutoMap();
+                cm.SetIgnoreExtraElements(true);
+            });
+
             EnsureCollectionsExist();
 
             // 3. Trigger the Fluent Mappings we discussed earlier
