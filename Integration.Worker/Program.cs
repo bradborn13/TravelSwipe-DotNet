@@ -2,14 +2,18 @@ using Integration.Application.Consumer;
 using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
+using Integration.Core.Features.Activities;
 using MassTransit;
 using System.Net.Http.Headers;
 
 var builder = Host.CreateDefaultBuilder(args);
 
 
+
 builder.ConfigureServices((context, services) =>
 {
+    services.AddScoped<INominatimService, NominatimAPIService>();
+    services.AddScoped<ISerpService, SerpApiService>();
     var configuration = context.Configuration;
     services.AddHttpClient<SerpApiService>(client =>
     {
