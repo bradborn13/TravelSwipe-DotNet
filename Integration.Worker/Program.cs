@@ -15,13 +15,14 @@ builder.ConfigureServices((context, services) =>
 {
     services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
-    services.AddScoped<INominatimService, NominatimAPIService>();
-    services.AddScoped<ISerpService, SerpApiService>();
     var configuration = context.Configuration;
     services.AddHttpClient<SerpApiService>(client =>
     {
         client.BaseAddress = new Uri("https://serpapi.com/");
-    });
+    }).AddTypedClient<ISerpService>((httpClient, serviceProvider) => new SerpApiService(
+    httpClient,
+    serviceProvider.GetRequiredService<IConfiguration>()
+)); ;
     services.AddHttpClient<FourSquareService>(client =>
     {
         client.BaseAddress = new Uri(
@@ -58,10 +59,13 @@ builder.ConfigureServices((context, services) =>
         );
 
         client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-        // Nominatim requires a valid user agent
         client.DefaultRequestHeaders.UserAgent.ParseAdd("TravelSwipe-App");
-    });
+    })
+    .AddTypedClient<INominatimService>((httpClient, serviceProvider) => new NominatimAPIService(
+    httpClient,
+    serviceProvider.GetRequiredService<IPublishEndpoint>(),
+    serviceProvider.GetRequiredService<ILogger<NominatimAPIService>>()
+));
 });
 
 
