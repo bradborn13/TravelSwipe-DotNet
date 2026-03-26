@@ -15,11 +15,6 @@ namespace Activities.Infrastructure.Data
 
             // 2. Specify your database name (same as used in Node.js)
             _database = client.GetDatabase("travelswipe");
-            BsonClassMap.RegisterClassMap<Activity>(cm =>
-            {
-                cm.AutoMap();
-                cm.SetIgnoreExtraElements(true);
-            });
 
             EnsureCollectionsExist();
 

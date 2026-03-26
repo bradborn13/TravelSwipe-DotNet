@@ -25,6 +25,7 @@ namespace Activities.Infrastructure.Data
                 BsonClassMap.RegisterClassMap<Activity>(cm =>
                 {
                     cm.AutoMap();
+                    cm.SetIgnoreExtraElements(true);
 
                     // Map C# 'Id' to Mongo '_id'
                     cm.MapIdProperty(c => c.Id)
@@ -60,6 +61,8 @@ namespace Activities.Infrastructure.Data
                     cm.MapProperty(c => c.Fsq_place_id).SetElementName("fsq_place_id");
                 });
             }
+
+
 
             //// 5. Map 'Details' (For any snake_case)
             //if (!BsonClassMap.IsClassMapRegistered(typeof(Details)))
