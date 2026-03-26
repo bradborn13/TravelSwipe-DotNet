@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Activities.Core.Features.Activities;
+using TravelSwipe.Contracts.Models;
 
 namespace Infrastructure.Mappings
 {
@@ -12,6 +13,14 @@ namespace Infrastructure.Mappings
             //CreateMap<City, CityDto>();
             //CreateMap<City, NomResponse>();
             CreateMap<Categories, CategoryDto>();
+            CreateMap<SocialMediaMQ, SocialMedia>();
+            CreateMap<CategoriesMQ, Categories>();
+            CreateMap<DetailsMQ, Details>();
+            CreateMap<RelatedPlacesMQ, RelatedPlaces>();
+            CreateMap<ImageURLMQ, ImageURL>();
+
+            // Then your main one
+            CreateMap<ActivityMQ, Activity>();
             CreateMap<FourSquareActivities, Activity>();
             CreateMap<Details, DetailsDto>();
             CreateMap<DetailsDto, Details>();

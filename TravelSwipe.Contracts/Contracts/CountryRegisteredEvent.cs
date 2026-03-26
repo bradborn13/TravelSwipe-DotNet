@@ -10,7 +10,8 @@ namespace TravelSwipe.Contracts.Contracts
     {
         public required string CountryCode { get; init; }
         public string DisplayName { get; init; } = string.Empty;
-        public required string SlugName { get; set; }
+        public required List<string> SlugList { get; set; }
+        public required List<string> NameList { get; set; }
         public DateTime DiscoveredAt { get; init; } = DateTime.UtcNow;
 
 

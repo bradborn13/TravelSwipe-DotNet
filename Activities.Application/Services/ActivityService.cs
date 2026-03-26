@@ -1,19 +1,16 @@
 ﻿using Activities.Api.Metrics;
 using AutoMapper;
 using MassTransit;
-using MassTransit.Futures.Contracts;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.IdentityModel.Logging;
 using Prometheus;
 using Slugify;
-using System;
 using System.Text.Json;
-
 using Application.ExternalServices;
 using TravelSwipe.Contracts.Contracts;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
+
 namespace Activities.Application.Services.Activities
 {
     public class ActivityService : IActivityService
@@ -66,13 +63,15 @@ namespace Activities.Application.Services.Activities
                     });
                 await _publishEndpoint.Publish(new CityRegisteredEvent
                 {
-                    DisplayName = activityList[0].City ?? "Unknown",
-                    SlugName = slugHelper.GenerateSlug(activityList[0].City),
+                    DisplayName = activityList[0].City ?? "",
+                    SlugList = [slugHelper.GenerateSlug(activityList[0].City)],
                     Country = activityList[0]?.Details?.Country ?? "",
                     Municipality = activityList[0]?.Details?.Region ?? "",
                     State = [],
                     Postcode = activityList[0]?.Details?.Postcode ?? "",
-                    DiscoveredAt = DateTime.UtcNow
+                    DiscoveredAt = DateTime.UtcNow,
+                    NameList = [activityList[0].City]
+
                 });
                 if (!string.IsNullOrEmpty(activityList[0]?.Details?.Country))
                 {
@@ -80,8 +79,9 @@ namespace Activities.Application.Services.Activities
                     {
                         DisplayName = activityList[0].Details?.Country ?? "",
                         CountryCode = "",
-                        SlugName = slugHelper.GenerateSlug(activityList[0].Details?.Country ?? "Unknown"),
-                        DiscoveredAt = DateTime.UtcNow
+                        SlugList = [slugHelper.GenerateSlug(activityList[0].Details?.Country ?? "")],
+                        DiscoveredAt = DateTime.UtcNow,
+                        NameList = [activityList[0].Details?.Country ?? ""]
                     });
                 }
                 _metrics.GetActivitiesViaDb.Inc();
@@ -92,8 +92,12 @@ namespace Activities.Application.Services.Activities
 
                 using (_metrics.ActivityScraptingEventsDuration.NewTimer())
                 {
-
-                    return await this.ScrapeActivities(city);
+                    await _publishEndpoint.Publish(new ScrapeLocationActivitiesEvent
+                    {
+                        Location = city
+                    });
+                    return new List<ActivityDto>();
+                    //return await this.ScrapeActivities(city);
                 }
 
                 //return new List<ActivityDto>();
@@ -129,73 +133,74 @@ namespace Activities.Application.Services.Activities
             }
 
         }
-        public async Task ScrapeCityAndCountryForActivity()
-        {
-            var activityList = await _repository.GetUniqueCityList();
+        //public async Task ScrapeCityAndCountryForActivity()
+        //{
+        //    var activityList = await _repository.GetUniqueCityList();
 
-            var citylist = activityList.Select(x => x.City).ToList();
+        //    var citylist = activityList.Select(x => x.City).ToList();
 
-            var citiesNotIncluded = await _cityRepository.FindCitiesNotRegisterd(citylist);
-            if (citiesNotIncluded.Count() == 0)
-            {
-                return;
-            }
-            var geoLocationList = await _nominatimService.FetchLocationInfo(activityList);
-            var slugHelper = new SlugHelper();
+        //    var citiesNotIncluded = await _cityRepository.FindCitiesNotRegisterd(citylist);
+        //    if (citiesNotIncluded.Count() == 0)
+        //    {
+        //        return;
+        //    }
+        //    var geoLocationList = await _nominatimService.FetchLocationInfo(activityList);
+        //    var slugHelper = new SlugHelper();
 
-            //TODO: checked if the city is registerd, if not return them add them locally but also send event
-            // var cityNamesList = geoLocationList
-            //     .Select(x =>  slugHelper.GenerateSlug(x?.Address?.City))            
-            //     .ToList();
-            //const newCities = await _cityRepository.FindNotRegisteredCities(cityList);
+        //    //TODO: checked if the city is registerd, if not return them add them locally but also send event
+        //    // var cityNamesList = geoLocationList
+        //    //     .Select(x =>  slugHelper.GenerateSlug(x?.Address?.City))            
+        //    //     .ToList();
+        //    //const newCities = await _cityRepository.FindNotRegisteredCities(cityList);
 
-            // var countryNameList = geoLocationList
-            //   .Select(x => slugHelper.GenerateSlug(x.Address?.City ))
-            //   .ToList();
+        //    // var countryNameList = geoLocationList
+        //    //   .Select(x => slugHelper.GenerateSlug(x.Address?.City ))
+        //    //   .ToList();
 
-            var cityList = geoLocationList
-                .Select(x => new City
-                {
-                    Country = x.Address?.Country ?? "",
-                    AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
-                    AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown") },
-                    DisplayName = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
-                })
-                .ToList();
-            var countryList = geoLocationList
-             .Select(x => new Country
-             {
-                 DisplayName = x.Address?.Country ?? string.Empty,
-                 AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country ?? string.Empty) },
-                 AssociatedNames = new List<string> { x?.Address?.Country ?? string.Empty },
-                 CountryCode = x?.Address?.CountryCode ?? ""
-             })
-             .ToList();
-            await _cityRepository.AddBatch(cityList);
-            await _countryRepository.AddBatch(countryList);
-            foreach (var geo in geoLocationList)
-            {
-                await _publishEndpoint.Publish(new CityRegisteredEvent
-                {
-                    DisplayName = geo.Address?.City ?? "Unknown",
-                    SlugName = slugHelper.GenerateSlug(geo?.Address?.City ?? "Unknown"),
-                    Country = geo?.Address?.Country ?? "",
-                    Municipality = geo?.Address?.Municipality ?? "",
-                    State = geo?.Address?.State?.Split(new[] { ",", "-" }, StringSplitOptions.RemoveEmptyEntries).ToList(),
-                    Postcode = geo?.Address?.Postcode ?? "",
-                    DiscoveredAt = DateTime.UtcNow
-                });
+        //    var cityList = geoLocationList
+        //        .Select(x => new City
+        //        {
+        //            Country = x.Address?.Country ?? "",
+        //            AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
+        //            AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown") },
+        //            DisplayName = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
+        //        })
+        //        .ToList();
+        //    var countryList = geoLocationList
+        //     .Select(x => new Country
+        //     {
+        //         DisplayName = x.Address?.Country ?? string.Empty,
+        //         AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country ?? string.Empty) },
+        //         AssociatedNames = new List<string> { x?.Address?.Country ?? string.Empty },
+        //         CountryCode = x?.Address?.CountryCode ?? ""
+        //     })
+        //     .ToList();
+        //    await _cityRepository.AddBatch(cityList);
+        //    await _countryRepository.AddBatch(countryList);
+        //    foreach (var geo in geoLocationList)
+        //    {
+        //        await _publishEndpoint.Publish(new CityRegisteredEvent
+        //        {
+        //            DisplayName = geo.Address?.City ?? "",
+        //            SlugList = [slugHelper.GenerateSlug(geo?.Address?.City ?? ""),],
+        //            Country = geo?.Address?.Country ?? "",
+        //            Municipality = geo?.Address?.Municipality ?? "",
+        //            State = geo?.Address?.State?.Split(new[] { ",", "-" }, StringSplitOptions.RemoveEmptyEntries).ToList(),
+        //            Postcode = geo?.Address?.Postcode ?? "",
+        //            DiscoveredAt = DateTime.UtcNow,
+        //            NameList = []
+        //        });
 
-                await _publishEndpoint.Publish(new CountryRegisteredEvent
-                {
-                    DisplayName = geo?.Address?.Country ?? "",
-                    CountryCode = geo?.Address?.CountryCode ?? "",
-                    SlugName = slugHelper.GenerateSlug(geo?.Address?.Country ?? "Unknown"),
-                    DiscoveredAt = DateTime.UtcNow
-                });
-            }
+        //        await _publishEndpoint.Publish(new CountryRegisteredEvent
+        //        {
+        //            DisplayName = geo?.Address?.Country ?? "",
+        //            CountryCode = geo?.Address?.CountryCode ?? "",
+        //            SlugList = [slugHelper.GenerateSlug(geo?.Address?.Country ?? "")],
+        //            DiscoveredAt = DateTime.UtcNow
+        //        });
+        //    }
 
-        }
+        //}
 
 
     }

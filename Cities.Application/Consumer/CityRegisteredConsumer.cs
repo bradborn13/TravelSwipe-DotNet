@@ -40,8 +40,9 @@ public class CityRegisteredConsumer : IConsumer<CityRegisteredEvent>
             Municipality = @event.Municipality ?? string.Empty,
             Postcode = @event.Postcode ?? string.Empty,
             State = @event.State ?? new List<string>(),
-            AssociatedSlugs = new List<string> { @event.SlugName },
-            AssociatedNames = new List<string> { @event.DisplayName ?? string.Empty }
+            AssociatedSlugs = @event.SlugList,
+            AssociatedNames = @event.NameList,
+
         };
 
         if (mappedCity is null)

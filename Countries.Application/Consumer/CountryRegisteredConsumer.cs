@@ -36,8 +36,8 @@ namespace Countries.Application.Consumer
             var mappedCountry = new Country
             {
                 DisplayName = @event.DisplayName,
-                AssociatedNames = new List<string> { @event.DisplayName ?? string.Empty },
-                AssociatedSlugs = new List<string> { @event.SlugName ?? string.Empty },
+                AssociatedNames = @event.NameList,
+                AssociatedSlugs = @event.SlugList,
                 CountryCode = @event.CountryCode ?? string.Empty
             };
             if (mappedCountry is null)
