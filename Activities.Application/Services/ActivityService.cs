@@ -129,7 +129,6 @@ namespace Activities.Application.Services.Activities
                     await _repository.AddImage(activity.Name, city, externalImages);
                 }
                 return [];
-
             }
 
         }

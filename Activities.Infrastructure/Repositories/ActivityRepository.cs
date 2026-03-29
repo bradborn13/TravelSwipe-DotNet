@@ -1,7 +1,7 @@
-﻿using MongoDB.Driver;
-using MongoDB.Driver.Linq;
-using Activities.Core.Features.Activities;
+﻿using Activities.Core.Features.Activities;
 using Activities.Infrastructure.Data;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 
 namespace Activities.Infrastructure.Repositories
 {

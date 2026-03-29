@@ -44,7 +44,6 @@ namespace Integration.Application.Integrations.Activities
 
                 if (data is not null && data.Results is not null)
                 {
-                     
 
                     FSActivity locationDetails = data?.Results?.FirstOrDefault(x => x.Details is not null);
                     if (locationDetails is not null)
@@ -55,6 +54,7 @@ namespace Integration.Application.Integrations.Activities
                     }
 
                     List<ActivityMQ> activityList = _mapper.Map<List<ActivityMQ>>(data.Results); ;
+                    activityList.ForEach(x => x.City = city);
                     foreach (ActivityMQ activity in activityList)
                     {
                         List<ImageURL> images = await _serpService.GetImages(activity.Name, city);
