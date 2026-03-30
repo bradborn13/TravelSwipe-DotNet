@@ -1,6 +1,7 @@
 using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
 using Activities.Application.Consumer;
+using Activities.Application.Hubs;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
@@ -23,11 +24,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowCredentials();
     });
 });
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
@@ -114,12 +116,10 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-
-app.UseCors();
-
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
-
 app.MapControllers();
 app.MapMetrics();
+app.MapHub<MessagingHub>("/hub");
 
 app.Run();
