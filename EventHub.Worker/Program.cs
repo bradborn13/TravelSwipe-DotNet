@@ -1,6 +1,7 @@
 ﻿
 using AutoMapper;
 using EventHub.Application.Consumer;
+using EventHub.Application.Consumers;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
 using MassTransit;
@@ -27,6 +28,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<FoundActivityForLocationConsumer>();
+    x.AddConsumer<ActivitiesByLocationConsumer>();
 
     x.UsingRabbitMq((ctx, cfg) =>
     {

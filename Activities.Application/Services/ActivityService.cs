@@ -56,6 +56,11 @@ namespace Activities.Application.Services.Activities
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
                     });
+                await _publishEndpoint.Publish(new ActivitiesByLocationEvent
+                {
+                    Location = city,
+                    Activities = _mapper.Map<List<ActivityDto>>(activityList)
+                });
                 await _publishEndpoint.Publish(new CityRegisteredEvent
                 {
                     DisplayName = activityList[0].City ?? "",
