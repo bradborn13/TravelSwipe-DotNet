@@ -1,57 +1,49 @@
 ﻿
 using AutoMapper;
 using EventHub.Application.Consumer;
+using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
 using MassTransit;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using System.Net.Http.Headers;
-var builder = Host.CreateDefaultBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSignalR();
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
 
 
-builder.ConfigureServices((context, services) =>
+// MassTransit + RabbitMQ
+builder.Services.AddMassTransit(x =>
 {
-    services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+    x.AddConsumer<FoundActivityForLocationConsumer>();
 
-    var configuration = context.Configuration;
-
-    // MassTransit + RabbitMQ
-    services.AddMassTransit(x =>
+    x.UsingRabbitMq((ctx, cfg) =>
     {
-        //x.AddConsumer<ScrapeLocationActivitiesConsumer>();
-        x.AddConsumer<FoundActivityForLocationConsumer>();
+        cfg.UsePrometheusMetrics();
 
-        x.UsingRabbitMq((ctx, cfg) =>
+        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
         {
-            cfg.UsePrometheusMetrics();
-
-            cfg.Host(configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-            {
-                h.Username(configuration["RabbitMQ:Username"] ?? "admin");
-                h.Password(configuration["RabbitMQ:Password"] ?? "secretpassword");
-            });
-
-            cfg.ConfigureEndpoints(ctx);
+            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
         });
-    });
-    services.AddSingleton<HubConnection>(sp =>
-    {
-        var config = sp.GetRequiredService<IConfiguration>();
-        var hubUrl = config["EventHub:Url"] ?? "http://localhost:5088";
 
-        var connection = new HubConnectionBuilder()
-            .WithUrl($"{hubUrl}/hub")
-            .WithAutomaticReconnect()
-            .Build();
-
-        return connection;
+        cfg.ConfigureEndpoints(ctx);
     });
 });
+//services.AddSingleton<HubConnection>(sp =>
+//{
+//    var config = sp.GetRequiredService<IConfiguration>();
+//    var hubUrl = config["EventHub:Url"] ?? "http://localhost:5088";
+
+//    var connection = new HubConnectionBuilder()
+//        .WithUrl($"{hubUrl}/hub")
+//        .WithAutomaticReconnect()
+//        .Build();
+
+//    return connection;
+//});
 
 
-
-var host = builder.Build();
-await host.RunAsync();
+var app = builder.Build();
+app.MapHub<MessagingHub>("/hub");
+app.MapControllers();
+await app.RunAsync();
