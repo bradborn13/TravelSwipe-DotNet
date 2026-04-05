@@ -4,10 +4,22 @@ using EventHub.Application.Consumer;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
 using MassTransit;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSignalR();
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+// Controllers
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 
 
@@ -42,8 +54,14 @@ builder.Services.AddMassTransit(x =>
 //    return connection;
 //});
 
+builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
+builder.Services.AddSignalR();
 
 var app = builder.Build();
-app.MapHub<MessagingHub>("/hub");
+
+app.UseCors("CorsPolicy");
+app.UseAuthorization();
 app.MapControllers();
-await app.RunAsync();
+app.MapHub<MessagingHub>("/hub");
+
+app.Run();
