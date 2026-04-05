@@ -23,6 +23,7 @@
 		<ProjectReference Include="..\Cities.Application\Cities.Application.csproj" />
 		<ProjectReference Include="..\Cities.Core\Cities.Core.csproj" />
 		<ProjectReference Include="..\Cities.Infrastructure\Cities.Infrastructure.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

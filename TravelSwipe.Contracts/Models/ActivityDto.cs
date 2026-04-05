@@ -5,7 +5,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Integration.Core.Features.Activities
+namespace TravelSwipe.Shared.Models
 {
     public record ActivityDto(
         string Id,

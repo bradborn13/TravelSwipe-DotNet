@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
 
-namespace Activities.Application.Hubs
+namespace EventHub.Application.Hubs
 {
     public class UserMessage
     {

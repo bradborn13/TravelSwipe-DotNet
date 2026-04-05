@@ -11,7 +11,7 @@ using Moq;
 using Moq.Protected;
 using System.Net;
 using System.Text.Json;
-using TravelSwipe.Contracts.Contracts;
+using TravelSwipe.Shared.Contracts;
 using Xunit.Abstractions;
 
 namespace Integration.Application.Tests

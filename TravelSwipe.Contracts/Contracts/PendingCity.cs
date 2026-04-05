@@ -1,4 +1,4 @@
-namespace TravelSwipe.Contracts.Contracts
+namespace TravelSwipe.Shared.Contracts
 {
     public class PendingCityEvent
     {

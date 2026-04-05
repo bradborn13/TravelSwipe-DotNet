@@ -6,8 +6,9 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using Slugify;
 using System.Net.Http.Json;
-using TravelSwipe.Contracts.Contracts;
-using TravelSwipe.Contracts.Models;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Models;
+
 
 namespace Integration.Application.Integrations.Activities
 {

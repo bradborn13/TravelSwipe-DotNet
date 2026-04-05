@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TravelSwipe.Contracts.Models
+namespace TravelSwipe.Shared.Models
 {
     public class SocialMediaMQ
     {

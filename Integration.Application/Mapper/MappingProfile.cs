@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Integration.Core.Features.Activities;
-using TravelSwipe.Contracts.Models;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Models;
 
 namespace Infrastructure.Mappings
 {

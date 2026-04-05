@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Cities.Core.Features.Cities;
-using TravelSwipe.Contracts.Contracts;
+using TravelSwipe.Shared.Contracts;
 
 namespace Cities.Application.Mappings
 

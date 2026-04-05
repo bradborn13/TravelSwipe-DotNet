@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TravelSwipe.Contracts.Contracts
+namespace TravelSwipe.Shared.Contracts
 {
     public record CountryRegisteredEvent
     {

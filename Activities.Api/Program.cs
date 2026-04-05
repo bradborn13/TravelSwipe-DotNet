@@ -8,7 +8,6 @@ using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
 using Activities.Infrastructure.Data;
 using Activities.Infrastructure.Repositories;
-using Application.ExternalServices;
 using AutoMapper;
 using Infrastructure.Mappings;
 using MassTransit;
@@ -38,22 +37,6 @@ builder.Services.AddDbContext<ActivityDbContext>(options =>
 
 // MongoDB
 builder.Services.AddSingleton<MongoContext>();
-builder.Services.AddHttpClient<SerpApiService>(client =>
-{
-    client.BaseAddress = new Uri("https://serpapi.com/");
-});
-builder.Services.AddHttpClient<FourSquareService>(client =>
-{
-    client.BaseAddress = new Uri(
-            builder.Configuration["Foursquare:BaseUrl"]!
-        );
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    client.DefaultRequestHeaders.Add("X-Places-Api-Version", "2025-06-17");
-
-    var apiKey = builder.Configuration["Foursquare:ApiKey"];
-    client.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", apiKey);
-});
 // MassTransit + RabbitMQ
 builder.Services.AddMassTransit(x =>
 {
@@ -71,17 +54,6 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ConfigureEndpoints(ctx);
     });
-});
-builder.Services.AddHttpClient<NominatimAPIService>(client =>
-{
-    client.BaseAddress = new Uri(
-        builder.Configuration["Nominatim:BaseUrl"]!
-    );
-
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-    // Nominatim requires a valid user agent
-    client.DefaultRequestHeaders.UserAgent.ParseAdd("TravelSwipe-App");
 });
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -104,6 +76,7 @@ builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 // App Services
 builder.Services.AddScoped<IActivityService, ActivityService>();
 builder.Services.AddSingleton<ActivityMetrics>();
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -115,11 +88,11 @@ if (app.Environment.IsDevelopment())
 
 
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
-app.MapHub<MessagingHub>("/hub");
+//app.MapHub<MessagingHub>("/hub");
 
 app.Run();

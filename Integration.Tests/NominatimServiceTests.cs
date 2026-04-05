@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using TravelSwipe.Contracts.Contracts;
+using TravelSwipe.Shared.Contracts;
 
 namespace Integration.Tests
 {

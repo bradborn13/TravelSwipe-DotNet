@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TravelSwipe.Contracts.Models;
+using TravelSwipe.Shared.Models;
 
-namespace TravelSwipe.Contracts.Contracts
+namespace TravelSwipe.Shared.Contracts
 {
     public class FoundActivitiesForLocationEvent
     {

@@ -25,7 +25,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Countries.Application\Countries.Application.csproj" />
 		<ProjectReference Include="..\Countries.Infrastructure\Countries.Infrastructure.csproj" />
-		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Contracts.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
 	</ItemGroup>
 
 </Project>

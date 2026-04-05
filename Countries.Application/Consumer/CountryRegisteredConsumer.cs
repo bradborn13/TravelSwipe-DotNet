@@ -3,7 +3,7 @@ using Countries.Application.Services;
 using Countries.Core.Features.Countries;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using TravelSwipe.Contracts.Contracts;
+using TravelSwipe.Shared.Contracts;
 
 namespace Countries.Application.Consumer
 {

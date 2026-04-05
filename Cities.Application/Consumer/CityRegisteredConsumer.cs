@@ -3,7 +3,7 @@ using Cities.Application.Services;
 using Cities.Core.Features.Cities;
 using MassTransit;
 using Microsoft.Extensions.Logging;
-using TravelSwipe.Contracts.Contracts;
+using TravelSwipe.Shared.Contracts;
 
 namespace Cities.Application.Consumers;
 

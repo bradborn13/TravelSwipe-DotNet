@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Activities.Core.Features.Activities;
-using TravelSwipe.Contracts.Models;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Models;
 
 namespace Infrastructure.Mappings
 {
@@ -21,7 +22,7 @@ namespace Infrastructure.Mappings
 
             // Then your main one
             CreateMap<ActivityMQ, Activity>();
-            CreateMap<FourSquareActivities, Activity>();
+            //CreateMap<FourSquareActivities, Activity>();
             CreateMap<Details, DetailsDto>();
             CreateMap<DetailsDto, Details>();
             CreateMap<SocialMedia, SocialMediaDto>();
@@ -32,26 +33,26 @@ namespace Infrastructure.Mappings
             CreateMap<ImageURLDto, ImageURL>();
             CreateMap<ImageURL, ImageURLDto>();
             CreateMap<Activity, ActivityDto>();
-            CreateMap<FSCategory, Categories>();
-            CreateMap<FSLocation, Details>();
-            CreateMap<FSActivity, Activity>()
-          .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
-          .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
-          .ForMember(dest => dest.Distance, opt => opt.MapFrom(src => src.Distance))
-          .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.Link))
-          .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories ?? new List<FSCategory>()))
-.ForMember(dest => dest.RelatedPlaces,
-    opt => opt.MapFrom(src => src.RelatedPlaces == null ? null : src.RelatedPlaces.Children))
-.ForMember(dest => dest.ImagesURL, opt => opt.MapFrom(src => new List<ImageURL>()))
-          //.ForMember(dest => dest.Details, opt => opt.MapFrom(src  new Details()))
-          .ForMember(dest => dest.DateCreated,
-           opt => opt.MapFrom(src => string.IsNullOrEmpty(src.DateCreated) ? (DateTime?)null : DateTime.Parse(src.DateCreated)))
-.ForMember(dest => dest.DateRefreshed,
-           opt => opt.MapFrom(src => string.IsNullOrEmpty(src.DateRefreshed) ? (DateTime?)null : DateTime.Parse(src.DateRefreshed)))
-          .ForMember(dest => dest.SocialMedia, opt => opt.MapFrom(src => new SocialMedia()));
-            CreateMap<FSChildPlace, RelatedPlaces>()
-    .ForMember(d => d.Fsq_place_id,
-        o => o.MapFrom(s => s.FsqPlaceId));
+            //CreateMap<FSCategory, Categories>();
+            //CreateMap<FSLocation, Details>();
+            //CreateMap<FSActivity, Activity>()
+            //          .ForMember(dest => dest.Latitude, opt => opt.MapFrom(src => src.Latitude))
+            //          .ForMember(dest => dest.Longitude, opt => opt.MapFrom(src => src.Longitude))
+            //          .ForMember(dest => dest.Distance, opt => opt.MapFrom(src => src.Distance))
+            //          .ForMember(dest => dest.Link, opt => opt.MapFrom(src => src.Link))
+            //          .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories ?? new List<FSCategory>()))
+            //.ForMember(dest => dest.RelatedPlaces,
+            //    opt => opt.MapFrom(src => src.RelatedPlaces == null ? null : src.RelatedPlaces.Children))
+            //.ForMember(dest => dest.ImagesURL, opt => opt.MapFrom(src => new List<ImageURL>()))
+            //          //.ForMember(dest => dest.Details, opt => opt.MapFrom(src  new Details()))
+            //          .ForMember(dest => dest.DateCreated,
+            //           opt => opt.MapFrom(src => string.IsNullOrEmpty(src.DateCreated) ? (DateTime?)null : DateTime.Parse(src.DateCreated)))
+            //.ForMember(dest => dest.DateRefreshed,
+            //           opt => opt.MapFrom(src => string.IsNullOrEmpty(src.DateRefreshed) ? (DateTime?)null : DateTime.Parse(src.DateRefreshed)))
+            //          .ForMember(dest => dest.SocialMedia, opt => opt.MapFrom(src => new SocialMedia()));
+            //            CreateMap<FSChildPlace, RelatedPlaces>()
+            //    .ForMember(d => d.Fsq_place_id,
+            //        o => o.MapFrom(s => s.FsqPlaceId));
 
 
 

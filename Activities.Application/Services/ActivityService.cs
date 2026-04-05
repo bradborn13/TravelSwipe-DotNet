@@ -5,11 +5,11 @@ using Microsoft.Extensions.Caching.Distributed;
 using Prometheus;
 using Slugify;
 using System.Text.Json;
-using Application.ExternalServices;
-using TravelSwipe.Contracts.Contracts;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
+using TravelSwipe.Shared.Models;
+using TravelSwipe.Shared.Contracts;
 
 namespace Activities.Application.Services.Activities
 {
@@ -22,19 +22,14 @@ namespace Activities.Application.Services.Activities
 
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
-        private readonly SerpApiService _serpApiService;
-        private readonly FourSquareService _foursquareService;
-        private readonly NominatimAPIService _nominatimService;
+
         ActivityMetrics _metrics;
-        public ActivityService(ActivityMetrics metrics, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, SerpApiService serpApiService, ICityRepository cityRepository, FourSquareService forsquareService, NominatimAPIService nominatimService, IPublishEndpoint publishEndpoint)
+        public ActivityService(ActivityMetrics metrics, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IPublishEndpoint publishEndpoint)
         {
             _metrics = metrics;
             _cache = cache;
             _repository = repository;
             _mapper = mapper;
-            _serpApiService = serpApiService;
-            _foursquareService = forsquareService;
-            _nominatimService = nominatimService;
             _cityRepository = cityRepository;
             _countryRepository = countryRepository;
             _publishEndpoint = publishEndpoint;
@@ -103,35 +98,7 @@ namespace Activities.Application.Services.Activities
                 //return new List<ActivityDto>();
             }
         }
-        private async Task<List<ActivityDto>> ScrapeActivities(string city)
-        {
-            var scrapedActivities = await _foursquareService.SearchPlacesAsync(city);
-            if (scrapedActivities == null || !scrapedActivities.Any())
-            {
-                return [];
-            }
-            var mapped = _mapper.Map<List<Activity>>(scrapedActivities);
-            mapped.ForEach(a => a.City = city);
-            await _repository.InsertActivityBatch(mapped);
-            var activityList = await _repository.GetActivitiesByCity(city);
-            return _mapper.Map<List<ActivityDto>>(activityList) ?? new List<ActivityDto>();
-        }
-        public async Task<List<ActivityDto>> ScrapePhotosForActivity(string city)
-        {
-            using (_metrics.ActivityScraptingPhotosDuration.NewTimer())
-            {
-                var activitiesWithoutImages = await _repository.GetActivitiesWithoutImages(city);
-                if (activitiesWithoutImages == null || activitiesWithoutImages.Count() == 0)
-                    return [];
-                foreach (var activity in activitiesWithoutImages)
-                {
-                    var externalImages = await _serpApiService.GetImages(activity.Name, city);
-                    await _repository.AddImage(activity.Name, city, externalImages);
-                }
-                return [];
-            }
 
-        }
         //public async Task ScrapeCityAndCountryForActivity()
         //{
         //    var activityList = await _repository.GetUniqueCityList();

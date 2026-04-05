@@ -1,30 +1,26 @@
-﻿using Activities.Application.Hubs;
-using Activities.Core.Features.Activities;
-using AutoMapper;
-
+﻿using AutoMapper;
+using EventHub.Application.Hubs;
 using MassTransit;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Models;
 
-namespace Activities.Application.Consumer
+namespace EventHub.Application.Consumer
 {
 
     public class FoundActivityForLocationConsumer : IConsumer<FoundActivitiesForLocationEvent>
     {
         private readonly ILogger<FoundActivityForLocationConsumer> _logger;
-        private readonly IActivityRepository _repo;
         private readonly IMapper _mapper;
         private readonly IHubContext<MessagingHub> _hubContext;
 
         public FoundActivityForLocationConsumer(
             ILogger<FoundActivityForLocationConsumer> logger,
-           IActivityRepository repo,
             IMapper mapper,
-IHubContext<MessagingHub> hubContext)
+            IHubContext<MessagingHub> hubContext)
         {
             _logger = logger;
-            _repo = repo;
             _mapper = mapper;
             _hubContext = hubContext;
         }
@@ -34,25 +30,22 @@ IHubContext<MessagingHub> hubContext)
             var @event = context.Message;
 
             _logger.LogInformation(
-                "Consuming FoundActivitiesForLocationEvent for {DisplayName}, {EventCount} activiites found",
+                "In EventHub, Consuming FoundActivitiesForLocationEvent  for {DisplayName}, {EventCount} activiites found",
                 @event.Location, @event.Activities.Count()
             );
 
             if (@event.Activities.Count() == 0)
             {
-                _logger.LogInformation("FoundActivitiesForLocationEvent found no Activities for location  {Location}. Skipping.", @event.Location);
+                _logger.LogInformation("FoundActivitiesForLocationEvent, in EventHub, found no Activities for location  {Location}. Skipping.", @event.Location);
                 return;
             }
 
-            var activities = _mapper.Map<List<Activity>>(@event.Activities);
-            foreach (var activity in activities)
-            {
-                await _hubContext.Clients.All.SendAsync("ReceiveMessage", activity.Name);
+            var activities = _mapper.Map<List<ActivityDto>>(@event.Activities);
 
-            }
-            await _repo.InsertActivityBatch(activities);
+            await _hubContext.Clients.All.SendAsync("ReceiveMessage", @event.Activities);
 
-            _logger.LogInformation("FoundActivitiesForLocationEvent added {ActivityAmount} activities for location {Location}", @event.Activities.Count(), @event.Location);
+
+            _logger.LogInformation("Evenmt hub sent {ActivityAmount} activities for location {Location} to the client  ", @event.Activities.Count(), @event.Location);
         }
     }
 }
