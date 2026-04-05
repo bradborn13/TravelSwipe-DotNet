@@ -1,13 +1,16 @@
 ﻿using Activities.Api.Metrics;
-using AutoMapper;
-using MassTransit;
-using Microsoft.Extensions.Caching.Distributed;
-using Prometheus;
-using Slugify;
-using System.Text.Json;
+using Activities.Application.Consumer;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
+using AutoMapper;
+using MassTransit;
+using MassTransit.Middleware;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
+using Prometheus;
+using Slugify;
+using System.Text.Json;
 using TravelSwipe.Shared.Contracts;
 using TravelSwipe.Shared.Models;
 
@@ -19,12 +22,12 @@ namespace Activities.Application.Services.Activities
         private readonly ICityRepository _cityRepository;
         private readonly ICountryRepository _countryRepository;
         private readonly IPublishEndpoint _publishEndpoint;
-
+        private readonly ILogger<ActivityService> _logger;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         ActivityMetrics _metrics;
-        public ActivityService(ActivityMetrics metrics, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IPublishEndpoint publishEndpoint)
+        public ActivityService(ActivityMetrics metrics, ILogger<ActivityService> logger, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IPublishEndpoint publishEndpoint)
         {
             _metrics = metrics;
             _cache = cache;
@@ -33,6 +36,7 @@ namespace Activities.Application.Services.Activities
             _cityRepository = cityRepository;
             _countryRepository = countryRepository;
             _publishEndpoint = publishEndpoint;
+            _logger = logger;
         }
 
         public async Task<List<ActivityDto>> GetActivitiesByCity(string city)
@@ -56,10 +60,15 @@ namespace Activities.Application.Services.Activities
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
                     });
+                List<ActivityDto> mappedResponse = _mapper.Map<List<ActivityDto>>(activityList);
+                _logger.LogInformation(
+               "PushingEvent ActivitiesByLocationEvent for location {DisplayName}, {EventCount} activities found",
+               city, mappedResponse.Count()
+           );
                 await _publishEndpoint.Publish(new ActivitiesByLocationEvent
                 {
                     Location = city,
-                    Activities = _mapper.Map<List<ActivityDto>>(activityList)
+                    Activities = mappedResponse
                 });
                 await _publishEndpoint.Publish(new CityRegisteredEvent
                 {
@@ -85,7 +94,7 @@ namespace Activities.Application.Services.Activities
                     });
                 }
                 _metrics.GetActivitiesViaDb.Inc();
-                return _mapper.Map<List<ActivityDto>>(activityList);
+                return mappedResponse;
             }
             else
             {
