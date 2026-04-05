@@ -6,7 +6,6 @@ using Countries.Infrastructure.Data;
 using Countries.Infrastructure.Repositories;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using TravelSwipe.Shared.Contracts;
 ;
 
 var builder = WebApplication.CreateBuilder(args);

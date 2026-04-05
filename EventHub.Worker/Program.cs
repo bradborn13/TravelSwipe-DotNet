@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
-using TravelSwipe.Shared.Contracts;
 var builder = Host.CreateDefaultBuilder(args);
 
 

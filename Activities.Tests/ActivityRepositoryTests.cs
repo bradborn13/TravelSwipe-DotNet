@@ -5,7 +5,6 @@ using Activities.Tests.Fixtures;
 using FluentAssertions;
 
 using MongoDB.Driver;
-using TravelSwipe.Shared.Models;
 
 
 namespace Activities.Tests

@@ -10,7 +10,6 @@
 	<ItemGroup>
 		<PackageReference Include="MassTransit" Version="8.5.8" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
-		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
 		<PackageReference Include="Slugify.Core" Version="5.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.13" />
 		<PackageReference Include="AutoMapper" Version="16.1.1" />
@@ -18,6 +17,6 @@
 		<PackageReference Include="xunit.assert" Version="2.9.2" />
 		<PackageReference Include="xunit.extensibility.core" Version="2.9.2" />
 		<ProjectReference Include="..\Integration.Core\Integration.Core.csproj" />
-		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Shared\TravelSwipe.Shared.csproj" />
 	</ItemGroup>
 </Project>

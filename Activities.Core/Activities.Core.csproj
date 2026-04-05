@@ -10,6 +10,6 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
+	  <ProjectReference Include="..\TravelSwipe.Shared\TravelSwipe.Shared.csproj" />
 	</ItemGroup>
 </Project>

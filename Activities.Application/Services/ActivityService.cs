@@ -8,8 +8,8 @@ using System.Text.Json;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
-using TravelSwipe.Shared.Models;
 using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Models;
 
 namespace Activities.Application.Services.Activities
 {

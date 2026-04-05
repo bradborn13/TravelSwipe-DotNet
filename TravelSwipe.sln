@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{02
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Activities", "Activities", "{A9CA1AA8-0118-4B2E-9B11-13EC8007E609}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelSwipe.Shared", "TravelSwipe.Contracts\TravelSwipe.Shared.csproj", "{06DECB75-D560-4A65-9149-716DA72BD396}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Countries", "Countries", "{B17C62B1-79E4-4F01-A3AC-4A6DE362AF34}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integrations", "Integrations", "{82490197-C35D-424D-92F9-65F4B0EA4D81}"
@@ -69,6 +67,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.Worker", "EventHub
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventHub.Application", "EventHub.Application\EventHub.Application.csproj", "{0FF36944-B9EB-4DFD-8B91-979FBCDE7695}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TravelSwipe.Shared", "TravelSwipe.Shared\TravelSwipe.Shared.csproj", "{06973D69-2CEF-5E4C-1FD9-DE242A3A7168}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,10 +91,6 @@ Global
 		{02E12F30-1CED-4B96-9AD0-407890728D8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02E12F30-1CED-4B96-9AD0-407890728D8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02E12F30-1CED-4B96-9AD0-407890728D8A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06DECB75-D560-4A65-9149-716DA72BD396}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06DECB75-D560-4A65-9149-716DA72BD396}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06DECB75-D560-4A65-9149-716DA72BD396}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06DECB75-D560-4A65-9149-716DA72BD396}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DE805200-F9E8-4BF3-9506-C9D47C210958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DE805200-F9E8-4BF3-9506-C9D47C210958}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE805200-F9E8-4BF3-9506-C9D47C210958}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -179,6 +175,10 @@ Global
 		{0FF36944-B9EB-4DFD-8B91-979FBCDE7695}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FF36944-B9EB-4DFD-8B91-979FBCDE7695}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FF36944-B9EB-4DFD-8B91-979FBCDE7695}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06973D69-2CEF-5E4C-1FD9-DE242A3A7168}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06973D69-2CEF-5E4C-1FD9-DE242A3A7168}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06973D69-2CEF-5E4C-1FD9-DE242A3A7168}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06973D69-2CEF-5E4C-1FD9-DE242A3A7168}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

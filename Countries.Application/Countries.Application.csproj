@@ -17,7 +17,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Countries.Core\Countries.Core.csproj" />
-		<ProjectReference Include="..\TravelSwipe.Contracts\TravelSwipe.Shared.csproj" />
+		<ProjectReference Include="..\TravelSwipe.Shared\TravelSwipe.Shared.csproj" />
 	</ItemGroup>
 
 </Project>
