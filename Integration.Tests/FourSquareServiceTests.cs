@@ -52,7 +52,7 @@ namespace Integration.Application.Tests
         }
 
         [Fact]
-        public async Task SearchPlacesAsync_WithValidResponse_PulishesEventWithMbappedActivities()
+        public async Task SearchPlacesAsync_WithValidResponse_PulishesEventWithMappedActivities()
         {
             // Arrange
             var city = "Copenhagen";
@@ -121,7 +121,7 @@ namespace Integration.Application.Tests
         }
 
         [Fact]
-        public async Task SearchPlacesAsync_WithEmptyResults_PublishesEventWithEmptyActivities()
+        public async Task SearchlacesAsync_WithEmptyResults_PublishesEventWithEmptyActivities()
         {
             // Arrange
             var city = "UnknownCity";

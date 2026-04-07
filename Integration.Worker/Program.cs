@@ -4,6 +4,7 @@ using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
+using Integration.Worker;
 using MassTransit;
 using System.Net.Http.Headers;
 
@@ -16,13 +17,12 @@ builder.ConfigureServices((context, services) =>
     services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 
     var configuration = context.Configuration;
-    services.AddHttpClient<SerpApiService>(client =>
+    services.Configure<SerpApiOptions>(
+    configuration.GetSection("SerpApi"));
+    services.AddHttpClient<ISerpService, SerpApiService>(client =>
     {
         client.BaseAddress = new Uri("https://serpapi.com/");
-    }).AddTypedClient<ISerpService>((httpClient, serviceProvider) => new SerpApiService(
-    httpClient,
-    serviceProvider.GetRequiredService<IConfiguration>()
-)); ;
+    });
     services.AddHttpClient<FourSquareService>(client =>
     {
         client.BaseAddress = new Uri(
@@ -35,6 +35,22 @@ builder.ConfigureServices((context, services) =>
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", apiKey);
     });
+
+
+    services.AddHttpClient<NominatimAPIService>(client =>
+    {
+        client.BaseAddress = new Uri(
+            configuration["Nominatim:BaseUrl"]!
+        );
+
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("TravelSwipe-App");
+    })
+    .AddTypedClient<INominatimService>((httpClient, serviceProvider) => new NominatimAPIService(
+    httpClient,
+    serviceProvider.GetRequiredService<IPublishEndpoint>(),
+    serviceProvider.GetRequiredService<ILogger<NominatimAPIService>>()
+));
     // MassTransit + RabbitMQ
     services.AddMassTransit(x =>
     {
@@ -52,20 +68,6 @@ builder.ConfigureServices((context, services) =>
             cfg.ConfigureEndpoints(ctx);
         });
     });
-    services.AddHttpClient<NominatimAPIService>(client =>
-    {
-        client.BaseAddress = new Uri(
-            configuration["Nominatim:BaseUrl"]!
-        );
-
-        client.DefaultRequestHeaders.Add("Accept", "application/json");
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("TravelSwipe-App");
-    })
-    .AddTypedClient<INominatimService>((httpClient, serviceProvider) => new NominatimAPIService(
-    httpClient,
-    serviceProvider.GetRequiredService<IPublishEndpoint>(),
-    serviceProvider.GetRequiredService<ILogger<NominatimAPIService>>()
-));
 });
 
 

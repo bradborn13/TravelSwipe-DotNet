@@ -47,22 +47,31 @@ namespace Activities.Application.Services.Activities
             {
                 _metrics.GetActivitiesViaReddis.Inc();
                 var deserialized = JsonSerializer.Deserialize<List<ActivityDto>>(cached);
+                await _publishEndpoint.Publish(new ActivitiesByLocationEvent
+                {
+                    Location = city,
+                    Activities = deserialized
+                });
                 if (deserialized != null)
                     return deserialized;
             }
             var activityList = await _repository.GetActivitiesByCity(city);
             if (activityList.Count() > 0)
             {
+                _logger.LogInformation(
+              "GetActivitiesByCity - Found and returning {EventCount} activity events for city:{City}",
+                  activityList.Count(), city
+          );
                 var slugHelper = new SlugHelper();
-                var json = JsonSerializer.Serialize(activityList);
+                List<ActivityDto> mappedResponse = _mapper.Map<List<ActivityDto>>(activityList);
+                var json = JsonSerializer.Serialize(mappedResponse);
                 await _cache.SetStringAsync(cacheKey, json,
                     new DistributedCacheEntryOptions
                     {
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
                     });
-                List<ActivityDto> mappedResponse = _mapper.Map<List<ActivityDto>>(activityList);
                 _logger.LogInformation(
-               "PushingEvent ActivitiesByLocationEvent for location {DisplayName}, {EventCount} activities found",
+               "GetActivitiesByCity - PushingEvent ActivitiesByLocationEvent for location {DisplayName}, {EventCount} activities found",
                city, mappedResponse.Count()
            );
                 await _publishEndpoint.Publish(new ActivitiesByLocationEvent
@@ -98,7 +107,9 @@ namespace Activities.Application.Services.Activities
             }
             else
             {
-
+                _logger.LogInformation(
+                   "GetActivitiesByCity - no activity events found for city:{City}, triggering scraping",
+                      city);
                 using (_metrics.ActivityScraptingEventsDuration.NewTimer())
                 {
                     await _publishEndpoint.Publish(new ScrapeLocationActivitiesEvent
@@ -106,82 +117,10 @@ namespace Activities.Application.Services.Activities
                         Location = city
                     });
                     return new List<ActivityDto>();
-                    //return await this.ScrapeActivities(city);
                 }
 
-                //return new List<ActivityDto>();
             }
         }
-
-        //public async Task ScrapeCityAndCountryForActivity()
-        //{
-        //    var activityList = await _repository.GetUniqueCityList();
-
-        //    var citylist = activityList.Select(x => x.City).ToList();
-
-        //    var citiesNotIncluded = await _cityRepository.FindCitiesNotRegisterd(citylist);
-        //    if (citiesNotIncluded.Count() == 0)
-        //    {
-        //        return;
-        //    }
-        //    var geoLocationList = await _nominatimService.FetchLocationInfo(activityList);
-        //    var slugHelper = new SlugHelper();
-
-        //    //TODO: checked if the city is registerd, if not return them add them locally but also send event
-        //    // var cityNamesList = geoLocationList
-        //    //     .Select(x =>  slugHelper.GenerateSlug(x?.Address?.City))            
-        //    //     .ToList();
-        //    //const newCities = await _cityRepository.FindNotRegisteredCities(cityList);
-
-        //    // var countryNameList = geoLocationList
-        //    //   .Select(x => slugHelper.GenerateSlug(x.Address?.City ))
-        //    //   .ToList();
-
-        //    var cityList = geoLocationList
-        //        .Select(x => new City
-        //        {
-        //            Country = x.Address?.Country ?? "",
-        //            AssociatedNames = new List<string> { x?.Address?.City ?? "Unknown" },
-        //            AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.City ?? "Unknown") },
-        //            DisplayName = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty)
-        //        })
-        //        .ToList();
-        //    var countryList = geoLocationList
-        //     .Select(x => new Country
-        //     {
-        //         DisplayName = x.Address?.Country ?? string.Empty,
-        //         AssociatedSlugs = new List<string> { slugHelper.GenerateSlug(x?.Address?.Country ?? string.Empty) },
-        //         AssociatedNames = new List<string> { x?.Address?.Country ?? string.Empty },
-        //         CountryCode = x?.Address?.CountryCode ?? ""
-        //     })
-        //     .ToList();
-        //    await _cityRepository.AddBatch(cityList);
-        //    await _countryRepository.AddBatch(countryList);
-        //    foreach (var geo in geoLocationList)
-        //    {
-        //        await _publishEndpoint.Publish(new CityRegisteredEvent
-        //        {
-        //            DisplayName = geo.Address?.City ?? "",
-        //            SlugList = [slugHelper.GenerateSlug(geo?.Address?.City ?? ""),],
-        //            Country = geo?.Address?.Country ?? "",
-        //            Municipality = geo?.Address?.Municipality ?? "",
-        //            State = geo?.Address?.State?.Split(new[] { ",", "-" }, StringSplitOptions.RemoveEmptyEntries).ToList(),
-        //            Postcode = geo?.Address?.Postcode ?? "",
-        //            DiscoveredAt = DateTime.UtcNow,
-        //            NameList = []
-        //        });
-
-        //        await _publishEndpoint.Publish(new CountryRegisteredEvent
-        //        {
-        //            DisplayName = geo?.Address?.Country ?? "",
-        //            CountryCode = geo?.Address?.CountryCode ?? "",
-        //            SlugList = [slugHelper.GenerateSlug(geo?.Address?.Country ?? "")],
-        //            DiscoveredAt = DateTime.UtcNow
-        //        });
-        //    }
-
-        //}
-
 
     }
 }

@@ -54,7 +54,7 @@ namespace Integration.Application.Integrations.Activities
 
                     }
 
-                    List<ActivityMQ> activityList = _mapper.Map<List<ActivityMQ>>(data.Results); ;
+                    List<ActivityMQ> activityList = _mapper.Map<List<ActivityMQ>>(data?.Results); ;
                     activityList.ForEach(x => x.City = city);
                     foreach (ActivityMQ activity in activityList)
                     {

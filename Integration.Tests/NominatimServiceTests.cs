@@ -15,8 +15,6 @@ using TravelSwipe.Shared.Contracts;
 
 namespace Integration.Tests
 {
-
-
     public class NominatimServiceTests
     {
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;

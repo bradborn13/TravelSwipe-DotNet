@@ -1,14 +1,11 @@
-﻿using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 namespace Integration.Application.Integrations.Images
 {
     public class SerpResponse
@@ -25,15 +22,20 @@ namespace Integration.Application.Integrations.Images
         public string? Link { get; set; }
         public string? Title { get; set; }
         public int? Position { get; set; }
-    }
+    };
+
+
     public class SerpApiService : ISerpService
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<SerpApiService> _logger;
         private readonly string _apiKey;
-        public SerpApiService(HttpClient httpClient, IConfiguration config)
+
+        public SerpApiService(HttpClient httpClient, ILogger<SerpApiService> logger, IOptions<SerpApiOptions> options)
         {
             _httpClient = httpClient;
-            _apiKey = config["SerpApi:ApiKey"]!;
+            _logger = logger;
+            _apiKey = options.Value.ApiKey;
         }
         public static ImageURL MapToImage(OrganicResult dto)
         {
@@ -41,13 +43,12 @@ namespace Integration.Application.Integrations.Images
             {
                 ImgSource = dto.Source,
                 Title = dto.Title,
-                Source = dto.Original,
+                Source = dto.Source,
                 Link = dto.Link,
                 OriginalHeight = dto.Original_height,
                 OriginalWidth = dto.Original_width,
-                Thumbnail = dto.Thumbnail,
-                Position = dto.Position
-
+                Thumbnail = dto.Original,
+                Position = dto.Position,
             };
         }
         public async Task<List<ImageURL>> GetImages(string activityName, string city)
@@ -59,7 +60,7 @@ namespace Integration.Application.Integrations.Images
                 ["location"] = city,
                 ["gl"] = "us",
                 ["hl"] = "en",
-                ["api_key"] = _apiKey
+                ["api_key"] = _apiKey,
             };
             var url = QueryHelpers.AddQueryString("search.json", queryParams);
 

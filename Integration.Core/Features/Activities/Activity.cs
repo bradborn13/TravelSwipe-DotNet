@@ -25,7 +25,6 @@ namespace Integration.Core.Features.Activities
     {
         public string Address { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
-        //public string Cross_street { get; set; } = string.Empty;
         public string FormattedAddress { get; set; } = string.Empty;
         public string Locality { get; set; } = string.Empty;
         public string Postcode { get; set; } = string.Empty;

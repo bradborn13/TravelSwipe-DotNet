@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Integration.Application.Integrations.Images;
 using Integration.Core.Features.Activities;
 using TravelSwipe.Shared.Contracts;
 using TravelSwipe.Shared.Models;
@@ -36,5 +37,6 @@ namespace Infrastructure.Mappings
 
 
         }
+
     }
 }
