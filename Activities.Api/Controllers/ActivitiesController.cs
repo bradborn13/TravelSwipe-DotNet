@@ -29,7 +29,7 @@ namespace Activities.Api.Controllers
             }
             var activities = await _activityService.GetActivitiesByCity(city);
 
-            return Ok(activities ?? new List<ActivityDto>());
+            return Ok(activities);
 
         }
         [HttpPost("update/images")]
