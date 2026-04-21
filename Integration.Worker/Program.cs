@@ -23,18 +23,35 @@ builder.ConfigureServices((context, services) =>
     {
         client.BaseAddress = new Uri("https://serpapi.com/");
     });
+
     services.AddHttpClient<FourSquareService>(client =>
     {
         client.BaseAddress = new Uri(
-                configuration["Foursquare:BaseUrl"]!
+                configuration["Foursquare:BaseUrl"]
             );
         client.DefaultRequestHeaders.Add("Accept", "application/json");
         client.DefaultRequestHeaders.Add("X-Places-Api-Version", "2025-06-17");
-
         var apiKey = configuration["Foursquare:ApiKey"];
         client.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", apiKey);
     });
+
+    services.AddHttpClient<TavilyService>(client =>
+    {
+        var baseUrl = configuration["Tavily:BaseUrl"];
+
+        client.BaseAddress = new Uri(
+                configuration["Tavily:BaseUrl"]!
+            );
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+        var apiKey = configuration["Tavily:ApiKey"];
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", apiKey);
+    }).AddTypedClient<ITavilyService>((HttpClient httpClient, IServiceProvider serviceProvider) => new TavilyService(
+    httpClient,
+    serviceProvider.GetRequiredService<ILogger<TavilyService>>()
+));
 
 
     services.AddHttpClient<NominatimAPIService>(client =>
@@ -46,7 +63,7 @@ builder.ConfigureServices((context, services) =>
         client.DefaultRequestHeaders.Add("Accept", "application/json");
         client.DefaultRequestHeaders.UserAgent.ParseAdd("TravelSwipe-App");
     })
-    .AddTypedClient<INominatimService>((httpClient, serviceProvider) => new NominatimAPIService(
+    .AddTypedClient<INominatimService>((HttpClient httpClient, IServiceProvider serviceProvider) => new NominatimAPIService(
     httpClient,
     serviceProvider.GetRequiredService<IPublishEndpoint>(),
     serviceProvider.GetRequiredService<ILogger<NominatimAPIService>>()
@@ -55,7 +72,7 @@ builder.ConfigureServices((context, services) =>
     services.AddMassTransit(x =>
     {
         x.AddConsumer<ScrapeLocationActivitiesConsumer>();
-        x.UsingRabbitMq((ctx, cfg) =>
+        x.UsingRabbitMq((IBusRegistrationContext ctx, IRabbitMqBusFactoryConfigurator cfg) =>
         {
             cfg.UsePrometheusMetrics();
 

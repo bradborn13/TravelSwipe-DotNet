@@ -89,6 +89,18 @@ namespace Activities.Infrastructure.Repositories
             var result = await _activities.Find(filter).ToListAsync();
             return result;
         }
+        public async Task<long> UpdateImages(string city, string activityName, List<ImageURL> imageList)
+        {
+
+            var filter = Builders<Activity>.Filter.And(
+                Builders<Activity>.Filter.Eq(x => x.City, city),
+                Builders<Activity>.Filter.Eq(x => x.Name, activityName)
+                );
+            var update = Builders<Activity>.Update.Set(x => x.ImagesURL, imageList);
+            var result = await _activities.UpdateOneAsync(filter, update);
+
+            return result.ModifiedCount;
+        }
 
         public async Task<List<CityGeoLocation>> GetUniqueCityList()
         {

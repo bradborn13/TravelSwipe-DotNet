@@ -39,12 +39,12 @@ namespace Activities.Tests
             locationList.Should().AllSatisfy(activity => uniqueMockCities.Should().ContainSingle(x => x == activity.City));
         }
         [Fact]
-        public async Task GetActivitiesWithoutImages_Returns_Activiites()
+        public async Task GetActivitiesWithoutImages_Returns_Activities()
         {
             List<Activity> mockActivities = new List<Activity>() {
             new Activity() { City = "Aarhus",Latitude=new Random().NextDouble() * 100,Longitude=new Random().NextDouble() * 100, Name = "Aaros" },
             new Activity() { City = "Aarhus",Latitude=new Random().NextDouble() * 100,Longitude=new Random().NextDouble() * 100, Name = "Infinity Bridge" },
-            new Activity(){City="Aalborg",Name="Heidi",Latitude=new Random().NextDouble() * 100,Longitude=new Random().NextDouble() * 100 } };
+            new Activity() {City="Aalborg",Name="Heidi",Latitude=new Random().NextDouble() * 100,Longitude=new Random().NextDouble() * 100 } };
             await _context.Activities.InsertManyAsync(mockActivities);
             List<string> uniqueMockCities = mockActivities.Select(x => x.City).Distinct().ToList();
 
@@ -76,7 +76,7 @@ namespace Activities.Tests
         }
 
         [Fact]
-        public async Task GetActivitiesWithoutImages_Returns_Activities()
+        public async Task GetActivitiesWithoutImages_Returns_Activities_MultipleLocations()
         {
             List<Activity> mockActivities = new List<Activity>() {
             new Activity() { City = "Aarhus",  ImagesURL = [], Latitude=new Random().NextDouble() * 100,Longitude=new Random().NextDouble() * 100, Name = "Aaros" },

@@ -119,7 +119,37 @@ namespace Activities.Application.Services.Activities
             return mappedResponse;
         }
 
+        public async Task UpdateImagesOnActivities(string city, Dictionary<string, List<ImageURLMQ>> imagePackageByActivities)
+        {
+            try
+            {
 
+                var tasks = imagePackageByActivities.Select(async activity =>
+                {
+                    try
+                    {
+                        return await _repository.UpdateImages(city, activity.Key, _mapper.Map<List<ImageURL>>(activity.Value));
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to update images for activity: {activity} on city: {city}", activity.Key, city);
+                        return 0;
+                    }
+                }
+                );
+                var results = await Task.WhenAll(tasks);
+                var totalUpdated = results.Sum();
+                _logger.LogInformation("Updated {total} records for {count} activities in {city}",
+                     totalUpdated, imagePackageByActivities.Count, city);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in UpdateImagesOnActivities for location {City}, exception:{exception}", city, ex.Message);
+                throw;
+            }
+        }
     }
 }
 

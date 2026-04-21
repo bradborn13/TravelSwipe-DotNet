@@ -42,12 +42,13 @@ namespace Integration.Application.Tests
             _mapper = new Mapper(new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>(), loggerFactory));
 
             var nominatimMock = new Mock<INominatimService>();
+            var tavilyMock = new Mock<ITavilyService>();
             var serpMock = new Mock<ISerpService>();
             _service = new FourSquareService(
                 _httpClient,
                 _publishEndpointMock.Object,
                 _mapper,
-                _loggerMock.Object, nominatimMock.Object, serpMock.Object
+                _loggerMock.Object, nominatimMock.Object, serpMock.Object, tavilyMock.Object
                 );
         }
 

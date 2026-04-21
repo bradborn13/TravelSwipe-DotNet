@@ -13,6 +13,7 @@ namespace Activities.Core.Features.Activities
         Task<bool> AddImage(string activityName, string city, List<ImageURL> images);
         Task InsertActivityBatch(List<Activity> activities);
         Task<List<CityGeoLocation>> GetUniqueCityList();
+        Task<long> UpdateImages(string city, string activityName, List<ImageURL> imagesList);
 
 
     }

@@ -20,10 +20,9 @@ namespace Integration.Application.Integrations.Activities
         private readonly ILogger<FourSquareService> _logger;
         private readonly INominatimService _nominatimService;
         private readonly ISerpService _serpService;
+        private readonly ITavilyService _tavilyService;
 
-
-
-        public FourSquareService(HttpClient httpClient, IPublishEndpoint publishEndpoint, IMapper mapper, ILogger<FourSquareService> logger, INominatimService nominatimService, ISerpService serpService)
+        public FourSquareService(HttpClient httpClient, IPublishEndpoint publishEndpoint, IMapper mapper, ILogger<FourSquareService> logger, INominatimService nominatimService, ISerpService serpService, ITavilyService tavilyService)
         {
             _httpClient = httpClient;
             _publishEndpoint = publishEndpoint;
@@ -31,6 +30,7 @@ namespace Integration.Application.Integrations.Activities
             _logger = logger;
             _nominatimService = nominatimService;
             _serpService = serpService;
+            _tavilyService = tavilyService;
         }
         public async Task SearchPlacesAsync(string city)
         {
@@ -38,6 +38,7 @@ namespace Integration.Application.Integrations.Activities
             {
                 var url = $"places/search?near={Uri.EscapeDataString(city)}";
                 _logger.LogInformation("Consuming SearchPlacesAsync, location is {City}", city);
+
                 var response = await _httpClient.GetAsync(url);
                 var json = await response.Content.ReadAsStringAsync();
                 response.EnsureSuccessStatusCode();
@@ -54,12 +55,14 @@ namespace Integration.Application.Integrations.Activities
 
                     }
 
-                    List<ActivityMQ> activityList = _mapper.Map<List<ActivityMQ>>(data?.Results); ;
+                    List<ActivityMQ> activityList = _mapper.Map<List<ActivityMQ>>(data?.Results);
                     activityList.ForEach(x => x.City = city);
                     foreach (ActivityMQ activity in activityList)
                     {
-                        List<ImageURL> images = await _serpService.GetImages(activity.Name, city);
-                        activity.ImagesURL = _mapper.Map<List<ImageURLMQ>>(images); ;
+                        //List<ImageURL> images = await _serpService.GetImages(activity.Name, city);
+                        //activity.ImagesURL = _mapper.Map<List<ImageURLMQ>>(images);
+                        List<string> locationImages = await _tavilyService.GetImages(activity.Name, city);
+                        activity.ImagesURL = locationImages.Select((x) => new ImageURLMQ() { Source = "Tavily", Thumbnail = x }).ToList();
                     }
 
                     await _publishEndpoint.Publish(new FoundActivitiesForLocationEvent
