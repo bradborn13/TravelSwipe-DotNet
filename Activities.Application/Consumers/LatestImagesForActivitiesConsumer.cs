@@ -15,13 +15,11 @@ namespace Activities.Application.Consumers
     public class LatestImagesForActivitiesConsumer : IConsumer<LatestImagesForActivitiesEvent>
     {
         private readonly ILogger<LatestImagesForActivitiesConsumer> _logger;
-        private readonly IPublishEndpoint _publishEndpoint;
-        private readonly ActivityService _activityService;
+        private readonly IActivityService _activityService;
         public LatestImagesForActivitiesConsumer(
        ILogger<LatestImagesForActivitiesConsumer> logger, IPublishEndpoint publishEndpoint, ActivityService activityService)
         {
             _logger = logger;
-            _publishEndpoint = publishEndpoint;
             _activityService = activityService;
         }
         public async Task Consume(ConsumeContext<LatestImagesForActivitiesEvent> context)
