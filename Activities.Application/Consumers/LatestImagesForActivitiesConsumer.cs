@@ -17,7 +17,7 @@ namespace Activities.Application.Consumers
         private readonly ILogger<LatestImagesForActivitiesConsumer> _logger;
         private readonly IActivityService _activityService;
         public LatestImagesForActivitiesConsumer(
-       ILogger<LatestImagesForActivitiesConsumer> logger, IPublishEndpoint publishEndpoint, ActivityService activityService)
+       ILogger<LatestImagesForActivitiesConsumer> logger, IPublishEndpoint publishEndpoint, IActivityService activityService)
         {
             _logger = logger;
             _activityService = activityService;
