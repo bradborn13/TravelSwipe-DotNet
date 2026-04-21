@@ -1,6 +1,7 @@
 using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
 using Activities.Application.Consumer;
+using Activities.Application.Consumers;
 using Activities.Application.Hubs;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
@@ -41,6 +42,7 @@ builder.Services.AddSingleton<MongoContext>();
 builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<FoundActivityForLocationConsumer>();
+    x.AddConsumer<LatestImagesForActivitiesConsumer>();
 
     x.UsingRabbitMq((ctx, cfg) =>
     {

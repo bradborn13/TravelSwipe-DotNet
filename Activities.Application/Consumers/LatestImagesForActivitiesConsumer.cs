@@ -12,7 +12,7 @@ using TravelSwipe.Shared.Models;
 
 namespace Activities.Application.Consumers
 {
-    public class LatestImagesForActivitiesConsumer
+    public class LatestImagesForActivitiesConsumer : IConsumer<LatestImagesForActivitiesEvent>
     {
         private readonly ILogger<LatestImagesForActivitiesConsumer> _logger;
         private readonly IPublishEndpoint _publishEndpoint;

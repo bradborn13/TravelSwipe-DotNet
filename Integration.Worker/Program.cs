@@ -72,6 +72,7 @@ builder.ConfigureServices((context, services) =>
     services.AddMassTransit(x =>
     {
         x.AddConsumer<ScrapeLocationActivitiesConsumer>();
+        x.AddConsumer<FetchLatestImagesForLocationConsumer>();
         x.UsingRabbitMq((IBusRegistrationContext ctx, IRabbitMqBusFactoryConfigurator cfg) =>
         {
             cfg.UsePrometheusMetrics();
