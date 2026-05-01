@@ -5,6 +5,7 @@ using EventHub.Application.Consumers;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
 using MassTransit;
+using TravelSwipe.Shared.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ builder.Services.AddCors(options =>
 // MassTransit + RabbitMQ
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<FoundActivityForLocationConsumer>();
+    x.AddConsumer<LatestImagesForActivitiesConsumer>();
     x.AddConsumer<ActivitiesByLocationConsumer>();
 
     x.UsingRabbitMq((ctx, cfg) =>

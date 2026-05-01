@@ -39,8 +39,8 @@ namespace Activities.Api.Controllers
             {
                 return BadRequest("City parameter is required.");
             }
-
-            return BadRequest();
+            await _activityService.TriggerIntegrationImageUpdate(city);
+            return Ok();
         }
 
     }

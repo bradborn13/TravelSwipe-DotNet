@@ -8,6 +8,7 @@ using MassTransit;
 using MassTransit.Middleware;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Logging;
 using Prometheus;
 using Slugify;
 using System.Text.Json;
@@ -50,7 +51,7 @@ namespace Activities.Application.Services.Activities
                 await _publishEndpoint.Publish(new ActivitiesByLocationEvent
                 {
                     Location = city,
-                    Activities = deserialized
+                    Activities = deserialized ?? []
                 });
                 if (deserialized != null)
                     return deserialized;
@@ -118,7 +119,28 @@ namespace Activities.Application.Services.Activities
             _metrics.GetActivitiesViaDb.Inc();
             return mappedResponse;
         }
+        public async Task TriggerIntegrationImageUpdate(string city)
+        {
 
+            var activityByNameList = await _repository.GetAllActivityNamesByLocation(city);
+            if (activityByNameList == null || activityByNameList.Count == 0)
+            {
+                _logger.LogInformation(
+           "TriggerIntegrationImageUpdate - did NOT publish event for location  {city}. No acitvities found",
+           city
+       );
+                return;
+            }
+            _logger.LogInformation(
+    "TriggerIntegrationImageUpdate - publishing event for location: {city}, {activitiesCount} activities found",
+    city, activityByNameList.Count
+);
+            await _publishEndpoint.Publish(new FetchLatestImagesForLocation
+            {
+                City = city,
+                Activities = activityByNameList
+            });
+        }
         public async Task UpdateImagesOnActivities(string city, Dictionary<string, List<ImageURLMQ>> imagePackageByActivities)
         {
             try
@@ -130,6 +152,7 @@ namespace Activities.Application.Services.Activities
                     {
                         return await _repository.UpdateImages(city, activity.Key, _mapper.Map<List<ImageURL>>(activity.Value));
 
+
                     }
                     catch (Exception ex)
                     {
@@ -139,7 +162,13 @@ namespace Activities.Application.Services.Activities
                 }
                 );
                 var results = await Task.WhenAll(tasks);
+
                 var totalUpdated = results.Sum();
+                if (totalUpdated > 0)
+                {
+                    var cacheKey = $"api:activities:{city.ToLower()}";
+                    await _cache.RemoveAsync(cacheKey);
+                }
                 _logger.LogInformation("Updated {total} records for {count} activities in {city}",
                      totalUpdated, imagePackageByActivities.Count, city);
 

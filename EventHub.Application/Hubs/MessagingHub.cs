@@ -17,14 +17,13 @@ namespace EventHub.Application.Hubs
         {
             var userMessage = new UserMessage
             {
-                Sender = Context.ConnectionId, // You might want to use a User Name if authenticated
+                Sender = Context.ConnectionId,
                 Content = content,
                 SentTime = DateTime.UtcNow
             };
 
             MessageHistory.Enqueue(userMessage);
 
-            // Keep only the last 50 messages
             while (MessageHistory.Count > MaxHistory)
             {
                 MessageHistory.TryDequeue(out _);

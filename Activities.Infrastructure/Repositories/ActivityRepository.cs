@@ -28,7 +28,14 @@ namespace Activities.Infrastructure.Repositories
             var result = await _activities.UpdateOneAsync(filter, update);
             return result.ModifiedCount > 0;
         }
+        public async Task<List<string>> GetAllActivityNamesByLocation(string city)
+        {
+            var filter = Builders<Activity>.Filter.Eq(x => x.City, city);
+            var fields = Builders<Activity>.Projection.Include(x => x.Name);
+            var result = await _activities.AsQueryable().Where(x => x.City == city).Select(x => x.Name).ToListAsync();
+            return result;
 
+        }
         public async Task<List<Activity>> GetActivitiesByCity(string city)
         {
             var result = await _activities.AsQueryable()

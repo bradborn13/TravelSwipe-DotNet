@@ -14,6 +14,8 @@ namespace Activities.Core.Features.Activities
         Task InsertActivityBatch(List<Activity> activities);
         Task<List<CityGeoLocation>> GetUniqueCityList();
         Task<long> UpdateImages(string city, string activityName, List<ImageURL> imagesList);
+        Task<List<string>> GetAllActivityNamesByLocation(string city);
+
 
 
     }

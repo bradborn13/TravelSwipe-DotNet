@@ -9,8 +9,7 @@ namespace Activities.Core.Features.Activities
     {
         Task<List<ActivityDto>> GetActivitiesByCity(string city);
         Task UpdateImagesOnActivities(string city, Dictionary<string, List<ImageURLMQ>> imagePackageByActivities);
-        //Task<List<ActivityDto>> ScrapePhotosForActivity(string city);
-        //Task ScrapeCityAndCountryForActivity();
+        Task TriggerIntegrationImageUpdate(string city);
 
     }
 }
