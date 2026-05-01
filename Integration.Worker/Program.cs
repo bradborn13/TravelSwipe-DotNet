@@ -7,6 +7,8 @@ using Integration.Core.Features.Activities;
 using Integration.Worker;
 using MassTransit;
 using System.Net.Http.Headers;
+using TravelSwipe.Shared;
+
 
 var builder = Host.CreateDefaultBuilder(args);
 
@@ -73,6 +75,8 @@ builder.ConfigureServices((context, services) =>
     {
         x.AddConsumer<ScrapeLocationActivitiesConsumer>();
         x.AddConsumer<FetchLatestImagesForLocationConsumer>();
+        x.AddConsumer(typeof(GenericFaultConsumer<>));
+
         x.UsingRabbitMq((IBusRegistrationContext ctx, IRabbitMqBusFactoryConfigurator cfg) =>
         {
             cfg.UsePrometheusMetrics();
