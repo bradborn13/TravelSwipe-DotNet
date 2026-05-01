@@ -8,6 +8,7 @@ using Integration.Worker;
 using MassTransit;
 using System.Net.Http.Headers;
 using TravelSwipe.Shared;
+using TravelSwipe.Shared.Contracts;
 
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -75,7 +76,8 @@ builder.ConfigureServices((context, services) =>
     {
         x.AddConsumer<ScrapeLocationActivitiesConsumer>();
         x.AddConsumer<FetchLatestImagesForLocationConsumer>();
-        x.AddConsumer(typeof(GenericFaultConsumer<>));
+        x.AddConsumer<GenericFaultConsumer<ScrapeLocationActivitiesEvent>>();
+        x.AddConsumer<GenericFaultConsumer<FetchLatestImagesForLocation>>();
 
         x.UsingRabbitMq((IBusRegistrationContext ctx, IRabbitMqBusFactoryConfigurator cfg) =>
         {
