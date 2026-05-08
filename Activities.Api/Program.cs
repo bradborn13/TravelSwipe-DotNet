@@ -1,20 +1,15 @@
 using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
-using Activities.Application.Consumer;
-using Activities.Application.Consumers;
-using Activities.Application.Hubs;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
 using Activities.Infrastructure.Data;
 using Activities.Infrastructure.Repositories;
-using AutoMapper;
 using Infrastructure.Mappings;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
-using System.Net.Http.Headers;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,24 +34,43 @@ builder.Services.AddDbContext<ActivityDbContext>(options =>
 // MongoDB
 builder.Services.AddSingleton<MongoContext>();
 // MassTransit + RabbitMQ
-builder.Services.AddMassTransit(x =>
+//builder.Services.AddMassTransit(x =>
+//{
+//    x.AddConsumer<FoundActivityForLocationConsumer>();
+//    x.AddConsumer<LatestImagesForActivitiesConsumer>();
+
+//    x.UsingRabbitMq((ctx, cfg) =>
+//    {
+//        cfg.UsePrometheusMetrics();
+
+//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
+//        {
+//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
+//        });
+
+//        cfg.ConfigureEndpoints(ctx);
+//    });
+//});
+var factory = new ConnectionFactory
 {
-    x.AddConsumer<FoundActivityForLocationConsumer>();
-    x.AddConsumer<LatestImagesForActivitiesConsumer>();
-
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.UsePrometheusMetrics();
-
-        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-        });
-
-        cfg.ConfigureEndpoints(ctx);
-    });
+    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
+    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
+    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
+};
+builder.Services.AddSingleton(sp =>
+{
+    var factory = sp.GetRequiredService<ConnectionFactory>();
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 });
+
+// 3. Register the Publishing Channel
+builder.Services.AddSingleton<IChannel>(sp =>
+{
+    var connection = sp.GetRequiredService<IConnection>();
+    return connection.CreateChannelAsync().GetAwaiter().GetResult();
+});
+
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {

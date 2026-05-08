@@ -5,8 +5,8 @@ using Cities.Core.Features.Cities;
 using Cities.Core.Features.Countries;
 using Cities.Infrastructure.Data;
 using Cities.Infrastructure.Repositories;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,21 +25,33 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-builder.Services.AddMassTransit(x =>
+
+var factory = new ConnectionFactory
 {
-    x.AddConsumer<CityRegisteredConsumer>();
+    HostName = builder.Configuration["RabbitMQ:Host"],
+    UserName = builder.Configuration["RabbitMQ:Username"],
+    Password = builder.Configuration["RabbitMQ:Password"]
+};
+var connection = await factory.CreateConnectionAsync();
+builder.Services.AddSingleton(connection);
 
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-        });
+// Register each worker individually
+builder.Services.AddHostedService<CityRegisteredConsumer>();
+//builder.Services.AddMassTransit(x =>
+//{
+//    x.AddConsumer<CityRegisteredConsumer>();
 
-        cfg.ConfigureEndpoints(ctx);
-    });
-});
+//    x.UsingRabbitMq((ctx, cfg) =>
+//    {
+//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
+//        {
+//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
+//        });
+
+//        cfg.ConfigureEndpoints(ctx);
+//    });
+//});
 //PostgreSQL
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<CityDbContext>(options =>

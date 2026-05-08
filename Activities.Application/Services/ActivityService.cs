@@ -1,19 +1,21 @@
 ﻿using Activities.Api.Metrics;
-using Activities.Application.Consumer;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
 using AutoMapper;
 using MassTransit;
-using MassTransit.Middleware;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Logging;
+
 using Prometheus;
+using RabbitMQ.Client;
 using Slugify;
+using System.Text;
 using System.Text.Json;
+using System.Threading.Channels;
 using TravelSwipe.Shared.Contracts;
 using TravelSwipe.Shared.Models;
+
 
 namespace Activities.Application.Services.Activities
 {
@@ -22,13 +24,13 @@ namespace Activities.Application.Services.Activities
         private readonly IActivityRepository _repository;
         private readonly ICityRepository _cityRepository;
         private readonly ICountryRepository _countryRepository;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IChannel _channel;
         private readonly ILogger<ActivityService> _logger;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         ActivityMetrics _metrics;
-        public ActivityService(ActivityMetrics metrics, ILogger<ActivityService> logger, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IPublishEndpoint publishEndpoint)
+        public ActivityService(ActivityMetrics metrics, ILogger<ActivityService> logger, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IChannel channel)
         {
             _metrics = metrics;
             _cache = cache;
@@ -36,7 +38,7 @@ namespace Activities.Application.Services.Activities
             _mapper = mapper;
             _cityRepository = cityRepository;
             _countryRepository = countryRepository;
-            _publishEndpoint = publishEndpoint;
+            _channel = channel;
             _logger = logger;
         }
 
@@ -48,13 +50,21 @@ namespace Activities.Application.Services.Activities
             {
                 _metrics.GetActivitiesViaReddis.Inc();
                 var deserialized = JsonSerializer.Deserialize<List<ActivityDto>>(cached);
-                await _publishEndpoint.Publish(new ActivitiesByLocationEvent
-                {
-                    Location = city,
-                    Activities = deserialized ?? []
-                });
+
                 if (deserialized != null)
+                {
+                    var payload = new ActivitiesByLocationEvent
+                    {
+                        Location = city,
+                        Activities = deserialized ?? []
+                    };
+                    var activityByLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
+                    await _channel.BasicPublishAsync(
+                        exchange: "travelswipe-exchange", routingKey: "activities.by.location", mandatory: true,
+                body: activityByLocationBody
+                        );
                     return deserialized;
+                }
             }
             var activityList = await _repository.GetActivitiesByCity(city);
             if (activityList.Count() == 0)
@@ -64,10 +74,15 @@ namespace Activities.Application.Services.Activities
                     city);
                 using (_metrics.ActivityScraptingEventsDuration.NewTimer())
                 {
-                    await _publishEndpoint.Publish(new ScrapeLocationActivitiesEvent
+
+                    var scrapeLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ScrapeLocationActivitiesEvent
                     {
                         Location = city
-                    });
+                    }));
+                    await _channel.BasicPublishAsync(
+                        exchange: "travelswipe-exchange", routingKey: "scrapeEvents.by.location", mandatory: true,
+                body: scrapeLocationBody
+                        );
                     return new List<ActivityDto>();
                 }
             }
@@ -88,33 +103,43 @@ namespace Activities.Application.Services.Activities
            "GetActivitiesByCity - PushingEvent ActivitiesByLocationEvent for location {DisplayName}, {EventCount} activities found",
            city, mappedResponse.Count()
        );
-            await _publishEndpoint.Publish(new ActivitiesByLocationEvent
+            var activitiesByLocationEvent = new ActivitiesByLocationEvent
             {
                 Location = city,
                 Activities = mappedResponse
-            });
-            await _publishEndpoint.Publish(new CityRegisteredEvent
-            {
-                DisplayName = activityList[0].City ?? "",
-                SlugList = [slugHelper.GenerateSlug(activityList[0].City)],
-                Country = activityList[0]?.Details?.Country ?? "",
-                Municipality = activityList[0]?.Details?.Region ?? "",
-                State = [],
-                Postcode = activityList[0]?.Details?.Postcode ?? "",
-                DiscoveredAt = DateTime.UtcNow,
-                NameList = [activityList[0].City]
+            };
 
-            });
+            var scrapingEventRequest = new ScrapeLocationActivitiesEvent
+            {
+                Location = city
+            };
+            var scrapeEventsBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(activitiesByLocationEvent));
+            await _channel.BasicPublishAsync(
+                        exchange: "travelswipe-exchange", routingKey: "scrapeEvents.by.location", mandatory: true,
+                body: scrapeEventsBody
+                        );
+            //await _publishEndpoint.Publish(new CityRegisteredEvent
+            //{
+            //    DisplayName = activityList[0].City ?? "",
+            //    SlugList = [slugHelper.GenerateSlug(activityList[0].City)],
+            //    Country = activityList[0]?.Details?.Country ?? "",
+            //    Municipality = activityList[0]?.Details?.Region ?? "",
+            //    State = [],
+            //    Postcode = activityList[0]?.Details?.Postcode ?? "",
+            //    DiscoveredAt = DateTime.UtcNow,
+            //    NameList = [activityList[0].City]
+
+            //});
             if (!string.IsNullOrEmpty(activityList[0]?.Details?.Country))
             {
-                await _publishEndpoint.Publish(new CountryRegisteredEvent
-                {
-                    DisplayName = activityList[0].Details?.Country ?? "",
-                    CountryCode = "",
-                    SlugList = [slugHelper.GenerateSlug(activityList[0].Details?.Country ?? "")],
-                    DiscoveredAt = DateTime.UtcNow,
-                    NameList = [activityList[0].Details?.Country ?? ""]
-                });
+                //    await _publishEndpoint.Publish(new CountryRegisteredEvent
+                //    {
+                //        DisplayName = activityList[0].Details?.Country ?? "",
+                //        CountryCode = "",
+                //        SlugList = [slugHelper.GenerateSlug(activityList[0].Details?.Country ?? "")],
+                //        DiscoveredAt = DateTime.UtcNow,
+                //        NameList = [activityList[0].Details?.Country ?? ""]
+                //    });
             }
             _metrics.GetActivitiesViaDb.Inc();
             return mappedResponse;
@@ -135,11 +160,11 @@ namespace Activities.Application.Services.Activities
     "TriggerIntegrationImageUpdate - publishing event for location: {city}, {activitiesCount} activities found",
     city, activityByNameList.Count
 );
-            await _publishEndpoint.Publish(new FetchLatestImagesForLocation
-            {
-                City = city,
-                Activities = activityByNameList
-            });
+            //await _publishEndpoint.Publish(new FetchLatestImagesForLocation
+            //{
+            //    City = city,
+            //    Activities = activityByNameList
+            //});
         }
         public async Task UpdateImagesOnActivities(string city, Dictionary<string, List<ImageURLMQ>> imagePackageByActivities)
         {
