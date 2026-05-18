@@ -35,7 +35,6 @@ var factory = new ConnectionFactory
 };
 builder.Services.AddSingleton<IConnection>(sp =>
 {
-    var factory = sp.GetRequiredService<ConnectionFactory>();
     return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 });
 builder.Services.AddSingleton<RabbitMqTopologyInitializer>();

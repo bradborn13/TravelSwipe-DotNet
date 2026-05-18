@@ -1,5 +1,6 @@
 using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
+using Activities.Api.RabbitMQTopology;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
@@ -58,11 +59,12 @@ var factory = new ConnectionFactory
     UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
     Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
 };
-builder.Services.AddSingleton(sp =>
+builder.Services.AddSingleton<IConnection>(sp =>
 {
-    var factory = sp.GetRequiredService<ConnectionFactory>();
     return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 });
+builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
+
 
 // 3. Register the Publishing Channel
 builder.Services.AddSingleton<IChannel>(sp =>
@@ -110,5 +112,11 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
 //app.MapHub<MessagingHub>("/hub");
+using (var scope = app.Services.CreateScope())
+{
+    var topology = scope.ServiceProvider
+        .GetRequiredService<RabbitMqTopologyInitializer>();
 
+    await topology.Initialize();
+}
 app.Run();
