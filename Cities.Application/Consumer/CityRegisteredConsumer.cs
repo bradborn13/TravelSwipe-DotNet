@@ -19,7 +19,6 @@ public class CityRegisteredConsumer : BackgroundService
 //IConsumer<CityRegisteredEvent>
 {
     private readonly ILogger<CityRegisteredConsumer> _logger;
-    private readonly ICityService _cityService;
     private readonly IMapper _mapper;
     private readonly IServiceProvider _serviceProvider; // To resolve Scoped services
     private readonly IConnection _connection;
@@ -33,7 +32,6 @@ public class CityRegisteredConsumer : BackgroundService
         IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _cityService = cityService;
         _mapper = mapper;
         _connection = connection;
         _serviceProvider = serviceProvider;
@@ -53,6 +51,8 @@ public class CityRegisteredConsumer : BackgroundService
             // 1. Create a scope to resolve your Repository/Hub (since Worker is Singleton)
             using var scope = _serviceProvider.CreateScope();
             var repo = scope.ServiceProvider.GetRequiredService<ICityService>();
+            var _cityService = scope.ServiceProvider.GetRequiredService<ICityService>();
+
             //var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             try
