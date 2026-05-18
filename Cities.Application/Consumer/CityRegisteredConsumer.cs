@@ -19,20 +19,16 @@ public class CityRegisteredConsumer : BackgroundService
 //IConsumer<CityRegisteredEvent>
 {
     private readonly ILogger<CityRegisteredConsumer> _logger;
-    private readonly IMapper _mapper;
     private readonly IServiceProvider _serviceProvider; // To resolve Scoped services
     private readonly IConnection _connection;
     private IChannel? _channel;
 
     public CityRegisteredConsumer(
         ILogger<CityRegisteredConsumer> logger,
-        ICityService cityService,
-        IMapper mapper,
         IConnection connection,
         IServiceProvider serviceProvider)
     {
         _logger = logger;
-        _mapper = mapper;
         _connection = connection;
         _serviceProvider = serviceProvider;
     }
