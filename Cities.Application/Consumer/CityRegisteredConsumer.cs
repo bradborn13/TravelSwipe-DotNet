@@ -53,7 +53,7 @@ public class CityRegisteredConsumer : BackgroundService
             // 1. Create a scope to resolve your Repository/Hub (since Worker is Singleton)
             using var scope = _serviceProvider.CreateScope();
             var repo = scope.ServiceProvider.GetRequiredService<ICityService>();
-            var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
+            //var mapper = scope.ServiceProvider.GetRequiredService<IMapper>();
 
             try
             {
@@ -111,7 +111,8 @@ public class CityRegisteredConsumer : BackgroundService
     }
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        if (_channel != null) await _channel.CloseAsync();
+        if (_channel != null) { await _channel.CloseAsync(); await _channel.DisposeAsync(); }
+        ;
         await base.StopAsync(cancellationToken);
     }
 }

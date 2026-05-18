@@ -1,3 +1,4 @@
+using Cities.Api.RabbitMQTopology;
 using Cities.Application.Consumers;
 using Cities.Application.Mappings;
 using Cities.Application.Services;
@@ -28,12 +29,16 @@ builder.Services.AddCors(options =>
 
 var factory = new ConnectionFactory
 {
-    HostName = builder.Configuration["RabbitMQ:Host"],
-    UserName = builder.Configuration["RabbitMQ:Username"],
-    Password = builder.Configuration["RabbitMQ:Password"]
+    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
+    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
+    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
 };
-var connection = await factory.CreateConnectionAsync();
-builder.Services.AddSingleton(connection);
+builder.Services.AddSingleton<IConnection>(sp =>
+{
+    var factory = sp.GetRequiredService<ConnectionFactory>();
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
+});
+builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
 
 // Register each worker individually
 builder.Services.AddHostedService<CityRegisteredConsumer>();
@@ -86,5 +91,13 @@ app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var topology = scope.ServiceProvider
+        .GetRequiredService<RabbitMqTopologyInitializer>();
+
+    await topology.Initialize();
+}
 
 app.Run();

@@ -22,6 +22,8 @@ namespace Activities.Application.Services.Activities
     public class ActivityService : IActivityService
     {
         private readonly IActivityRepository _repository;
+        private readonly IConnection _connection;
+        private const string ExchangeName = "travelswipe-exchange";
         private readonly ICityRepository _cityRepository;
         private readonly ICountryRepository _countryRepository;
         private readonly IChannel _channel;
@@ -44,6 +46,8 @@ namespace Activities.Application.Services.Activities
 
         public async Task<List<ActivityDto>> GetActivitiesByCity(string city)
         {
+            //await using var channel = await _connection.CreateChannelAsync();
+
             var cacheKey = $"api:activities:{city.ToLower()}";
             var cached = await _cache.GetStringAsync(cacheKey);
             if (cached != null)
@@ -75,6 +79,27 @@ namespace Activities.Application.Services.Activities
                 using (_metrics.ActivityScraptingEventsDuration.NewTimer())
                 {
 
+                    await _channel.ExchangeDeclareAsync(
+                    exchange: "travelswipe-exchange",
+                    type: ExchangeType.Topic,
+                    durable: true
+                    );
+                    var newLocationFoundEvent = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new CityRegisteredEvent
+                    {
+                        DisplayName = city ?? "",
+                        SlugList = [city ?? ""],
+                        Country = "test",
+                        Municipality = "test",
+                        State = [],
+                        Postcode = "ttesst",
+                        DiscoveredAt = DateTime.UtcNow,
+                        NameList = [city ?? ""]
+
+                    }));
+                    await _channel.BasicPublishAsync(
+                    exchange: "travelswipe-exchange", routingKey: "country.found", mandatory: true,
+            body: newLocationFoundEvent
+                    );
                     var scrapeLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ScrapeLocationActivitiesEvent
                     {
                         Location = city
@@ -113,6 +138,7 @@ namespace Activities.Application.Services.Activities
             {
                 Location = city
             };
+
             var scrapeEventsBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(activitiesByLocationEvent));
             await _channel.BasicPublishAsync(
                         exchange: "travelswipe-exchange", routingKey: "scrapeEvents.by.location", mandatory: true,

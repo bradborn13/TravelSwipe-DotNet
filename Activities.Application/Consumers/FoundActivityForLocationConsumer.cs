@@ -45,11 +45,12 @@ IHubContext<MessagingHub> hubContext)
             }
 
             var activities = _mapper.Map<List<Activity>>(@event.Activities);
-            foreach (var activity in activities)
-            {
-                await _hubContext.Clients.All.SendAsync("ReceiveMessage", activity.Name);
+            //experiment- signalR
+            //foreach (var activity in activities)
+            //{
+            //    await _hubContext.Clients.All.SendAsync("ReceiveMessage", activity.Name);
 
-            }
+            //}
             await _repo.InsertActivityBatch(activities);
 
             _logger.LogInformation("FoundActivitiesForLocationEvent added {ActivityAmount} activities for location {Location}", @event.Activities.Count(), @event.Location);

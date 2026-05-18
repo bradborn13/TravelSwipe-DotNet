@@ -3,7 +3,7 @@ using Cities.Core.Features.Cities;
 using Microsoft.AspNetCore.Mvc;
 using TravelSwipe.Core.Features.Countries;
 
-namespace TravelSwipe.Api.Controllers
+namespace Cities.Api.Controllers
 {
     [ApiController]
     [Route("cities")]
