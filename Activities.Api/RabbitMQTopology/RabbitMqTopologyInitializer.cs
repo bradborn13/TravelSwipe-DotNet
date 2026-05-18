@@ -12,26 +12,11 @@ namespace Activities.Api.RabbitMQTopology
         {
             _connection = connection;
         }
-        private async Task DeclareCountryQueuesAsync(IChannel channel)
-        {
-            await channel.QueueDeclareAsync(
-                queue: "country-service-queue",
-                durable: true,
-                exclusive: false,
-                autoDelete: false
-            );
-
-            await channel.QueueBindAsync(
-                queue: "country-service-queue",
-                exchange: ExchangeName,
-                routingKey: "country.found"
-            );
-        }
         private async Task DeclareActivityQueuesAsync(IChannel channel)
         {
 
             await channel.QueueDeclareAsync(
-               queue: "scrape-queue",
+               queue: "activity-scrape-queue",
                durable: true,
                exclusive: false,
                autoDelete: false
@@ -52,7 +37,6 @@ namespace Activities.Api.RabbitMQTopology
                 type: ExchangeType.Topic,
                 durable: true
             );
-            await DeclareCountryQueuesAsync(channel);
             await DeclareActivityQueuesAsync(channel);
         }
     }
