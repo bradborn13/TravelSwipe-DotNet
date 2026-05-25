@@ -1,6 +1,6 @@
 ﻿using RabbitMQ.Client;
 
-namespace Cities.Api.RabbitMQTopology
+namespace EventHub.Worker.RabbitMQTopology
 {
     public class RabbitMqTopologyInitializer
     {
@@ -23,7 +23,7 @@ namespace Cities.Api.RabbitMQTopology
             await channel.QueueBindAsync(
                 queue: "city-service-queue",
                 exchange: ExchangeName,
-                routingKey: "city.found"
+                routingKey: "city.registered"
             );
         }
 

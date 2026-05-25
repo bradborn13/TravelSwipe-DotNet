@@ -7,6 +7,7 @@
 		<Nullable>enable</Nullable>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<UserSecretsId>d1b3a5cd-fe21-41cf-a4b2-90f59099da79</UserSecretsId>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -18,6 +19,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="16.1.1" />
+		<PackageReference Include="EventStore.Client.Grpc" Version="23.3.9" />
+		<PackageReference Include="EventStore.Client.Grpc.Streams" Version="23.3.9" />
 		<PackageReference Include="MassTransit.RabbitMQ" Version="8.5.8" />
 		<PackageReference Include="MassTransit.Prometheus" Version="8.1.3" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="10.0.5" />

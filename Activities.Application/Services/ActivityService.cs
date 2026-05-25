@@ -97,7 +97,7 @@ namespace Activities.Application.Services.Activities
 
                     }));
                     await _channel.BasicPublishAsync(
-                    exchange: "travelswipe-exchange", routingKey: "country.found", mandatory: true,
+                    exchange: "travelswipe-exchange", routingKey: "city.registered", mandatory: true,
             body: newLocationFoundEvent
                     );
                     var scrapeLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ScrapeLocationActivitiesEvent

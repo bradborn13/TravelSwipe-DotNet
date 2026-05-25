@@ -8,8 +8,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="EventStore.Client.Grpc.Streams" Version="23.3.9" />
 		<PackageReference Include="MassTransit" Version="8.5.8" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
+		<PackageReference Include="RabbitMQ.Client" Version="7.2.1" />
 		<PackageReference Include="Slugify.Core" Version="5.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="9.0.13" />
 		<PackageReference Include="AutoMapper" Version="16.1.1" />

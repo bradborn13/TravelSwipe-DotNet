@@ -1,11 +1,10 @@
 ﻿
-using AutoMapper;
-using EventHub.Application.Consumer;
-using EventHub.Application.Consumers;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
-using MassTransit;
-using TravelSwipe.Shared.Contracts;
+using EventHub.Worker.RabbitMQTopology;
+using EventStore.Client;
+using RabbitMQ.Client;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,24 +25,46 @@ builder.Services.AddCors(options =>
 
 
 // MassTransit + RabbitMQ
-builder.Services.AddMassTransit(x =>
+//builder.Services.AddMassTransit(x =>
+//{
+//    x.AddConsumer<LatestImagesForActivitiesConsumer>();
+//    x.AddConsumer<ActivitiesByLocationConsumer>();
+
+//    x.UsingRabbitMq((ctx, cfg) =>
+//    {
+//        cfg.UsePrometheusMetrics();
+
+//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
+//        {
+//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
+//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
+//        });
+
+//        cfg.ConfigureEndpoints(ctx);
+//    });
+//});
+
+var factory = new ConnectionFactory
 {
-    x.AddConsumer<LatestImagesForActivitiesConsumer>();
-    x.AddConsumer<ActivitiesByLocationConsumer>();
-
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.UsePrometheusMetrics();
-
-        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-        });
-
-        cfg.ConfigureEndpoints(ctx);
-    });
+    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
+    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
+    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
+};
+builder.Services.AddSingleton<IConnection>(sp =>
+{
+    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 });
+builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
+
+
+// 3. Register the Publishing Channel
+builder.Services.AddSingleton<IChannel>(sp =>
+{
+    var connection = sp.GetRequiredService<IConnection>();
+    return connection.CreateChannelAsync().GetAwaiter().GetResult();
+});
+
+
 //services.AddSingleton<HubConnection>(sp =>
 //{
 //    var config = sp.GetRequiredService<IConfiguration>();
@@ -57,6 +78,9 @@ builder.Services.AddMassTransit(x =>
 //    return connection;
 //});
 
+builder.Services
+       .AddEventStoreClient(builder.Configuration["EventStore:Host"]);
+
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 builder.Services.AddSignalR();
 
@@ -66,5 +90,11 @@ app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<MessagingHub>("/hub");
+using (var scope = app.Services.CreateScope())
+{
+    var topology = scope.ServiceProvider
+        .GetRequiredService<RabbitMqTopologyInitializer>();
 
+    await topology.Initialize();
+}
 app.Run();
