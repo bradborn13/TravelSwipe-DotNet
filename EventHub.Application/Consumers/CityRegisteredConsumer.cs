@@ -64,6 +64,7 @@ public class CityRegisteredConsumer : BackgroundService
                     await _channel.BasicAckAsync(ea.DeliveryTag, false);
                     return;
                 }
+                _logger.LogInformation("EventHub - Publishing CityRegisteredEvent Event to EventStore.");
 
                 var eventData = new EventData(Uuid.NewUuid(),
                                    nameof(@event),
