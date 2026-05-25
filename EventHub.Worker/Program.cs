@@ -79,7 +79,7 @@ builder.Services.AddSingleton<IChannel>(sp =>
 //});
 
 builder.Services
-       .AddEventStoreClient(builder.Configuration["EventStore:Host"]);
+       .AddEventStoreClient(builder.Configuration["EventStore"]);
 
 builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MappingProfile>());
 builder.Services.AddSignalR();
