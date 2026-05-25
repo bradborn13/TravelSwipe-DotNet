@@ -28,6 +28,22 @@ namespace Activities.Api.RabbitMQTopology
                 routingKey: "scrapeEvents.by.location"
             );
         }
+        private async Task DeclareCityQueuesAsync(IChannel channel)
+        {
+            await channel.QueueDeclareAsync(
+                queue: "city-service-queue",
+                durable: true,
+                exclusive: false,
+                autoDelete: false
+            );
+
+            await channel.QueueBindAsync(
+                queue: "city-service-queue",
+                exchange: ExchangeName,
+                routingKey: "city.registered"
+            );
+        }
+
         public async Task Initialize()
         {
             await using var channel = await _connection.CreateChannelAsync();
@@ -38,6 +54,7 @@ namespace Activities.Api.RabbitMQTopology
                 durable: true
             );
             await DeclareActivityQueuesAsync(channel);
+            await DeclareCityQueuesAsync(channel);
         }
     }
 }
