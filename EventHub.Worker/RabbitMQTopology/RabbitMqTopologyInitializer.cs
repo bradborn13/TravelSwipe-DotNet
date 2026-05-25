@@ -14,14 +14,14 @@ namespace EventHub.Worker.RabbitMQTopology
         private async Task DeclareCityQueuesAsync(IChannel channel)
         {
             await channel.QueueDeclareAsync(
-                queue: "city-service-queue",
+                queue: "eventhub-city-queue",
                 durable: true,
                 exclusive: false,
                 autoDelete: false
             );
 
             await channel.QueueBindAsync(
-                queue: "city-service-queue",
+                queue: "eventhub-city-queue",
                 exchange: ExchangeName,
                 routingKey: "city.registered"
             );

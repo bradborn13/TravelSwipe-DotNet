@@ -41,8 +41,8 @@ public class CityRegisteredConsumer : BackgroundService
         _channel = await _connection.CreateChannelAsync(cancellationToken: stoppingToken);
 
         await _channel.ExchangeDeclareAsync("travelswipe-exchange", ExchangeType.Topic, durable: true);
-        await _channel.QueueDeclareAsync("city-service-queue", durable: true, exclusive: false, autoDelete: false);
-        await _channel.QueueBindAsync("city-service-queue", "travelswipe-exchange", "city.registered");
+        await _channel.QueueDeclareAsync("eventhub-city-queue", durable: true, exclusive: false, autoDelete: false);
+        await _channel.QueueBindAsync("eventhub-city-queue", "travelswipe-exchange", "city.registered");
 
         var consumer = new AsyncEventingBasicConsumer(_channel);
         consumer.ReceivedAsync += async (model, ea) =>
@@ -85,7 +85,7 @@ public class CityRegisteredConsumer : BackgroundService
                 await _channel.BasicNackAsync(ea.DeliveryTag, false, requeue: true);
             }
         };
-        await _channel.BasicConsumeAsync("city-service-queue", autoAck: false, consumer: consumer);
+        await _channel.BasicConsumeAsync("eventhub-city-queue", autoAck: false, consumer: consumer);
 
         // Keep the task alive until the app shuts down
         await Task.Delay(Timeout.Infinite, stoppingToken);
