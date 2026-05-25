@@ -17,10 +17,9 @@ using Timeout = System.Threading.Timeout;
 namespace EventHub.Application.Consumers;
 
 public class CityRegisteredConsumer : BackgroundService
-//IConsumer<CityRegisteredEvent>
 {
     private readonly ILogger<CityRegisteredConsumer> _logger;
-    private readonly IServiceProvider _serviceProvider; // To resolve Scoped services
+    private readonly IServiceProvider _serviceProvider;
     private readonly IConnection _connection;
     private IChannel? _channel;
     private readonly EventStoreClient eventStore;
@@ -72,7 +71,7 @@ public class CityRegisteredConsumer : BackgroundService
 
                 //this.eventStore.AppendToStreamAsync()
                 await this.eventStore
-                            .AppendToStreamAsync(nameof(@event),
+                            .AppendToStreamAsync(nameof(CityRegisteredEvent),
                                                   StreamState.Any,
                                                   new[] { eventData });
 

@@ -1,4 +1,5 @@
 ﻿
+using EventHub.Application.Consumers;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
 using EventHub.Worker.RabbitMQTopology;
@@ -55,6 +56,7 @@ builder.Services.AddSingleton<IConnection>(sp =>
     return factory.CreateConnectionAsync().GetAwaiter().GetResult();
 });
 builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
+builder.Services.AddHostedService<CityRegisteredConsumer>();
 
 
 // 3. Register the Publishing Channel
