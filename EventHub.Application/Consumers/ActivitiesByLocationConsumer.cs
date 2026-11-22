@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using EventHub.Application.Hubs;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,7 +13,7 @@ using TravelSwipe.Shared.Models;
 
 namespace EventHub.Application.Consumers
 {
-    public class ActivitiesByLocationConsumer : IConsumer<ActivitiesByLocationEvent>
+    public class ActivitiesByLocationConsumer : IMessageHandler<ActivitiesByLocationEvent>
     {
         private readonly ILogger<ActivitiesByLocationConsumer> _logger;
         private readonly IMapper _mapper;
@@ -29,10 +29,9 @@ namespace EventHub.Application.Consumers
             _hubContext = hubContext;
         }
 
-        public async Task Consume(ConsumeContext<ActivitiesByLocationEvent> context)
+        public async Task HandleAsync(ActivitiesByLocationEvent @event, CancellationToken cancellationToken)
         {
-            var @event = context.Message;
-
+            
             _logger.LogInformation(
                 "In EventHub, Consuming ActivitiesByLocationEvent  for {DisplayName}, {EventCount} activiites found",
                 @event.Location, @event.Activities.Count()

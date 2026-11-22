@@ -1,12 +1,12 @@
-using Countries.Application.Consumer;
+﻿using Countries.Application.Consumer;
 using Countries.Application.Mappings;
 using Countries.Application.Services;
 using Countries.Core.Features.Countries;
 using Countries.Infrastructure.Data;
 using Countries.Infrastructure.Repositories;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
-;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,21 +30,9 @@ var connectionStringPostgres = builder.Configuration.GetConnectionString("Postgr
 builder.Services.AddDbContext<CountryDbContext>(options =>
     options.UseNpgsql(connectionStringPostgres));
 
-builder.Services.AddMassTransit(x =>
-{
-    x.AddConsumer<CountryRegisteredConsumer>();
-
-    x.UsingRabbitMq((ctx, cfg) =>
-    {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-        {
-            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-        });
-
-        cfg.ConfigureEndpoints(ctx);
-    });
-});
+// RabbitMQ
+builder.Services.AddRabbitMqMessaging(builder.Configuration);
+builder.Services.AddRabbitMqConsumer<CountryRegisteredEvent, CountryRegisteredConsumer>(MessagingTopology.Queues.CountryService);
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {

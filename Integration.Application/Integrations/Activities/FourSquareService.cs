@@ -2,7 +2,7 @@
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using Slugify;
 using System.Net.Http.Json;
@@ -15,17 +15,17 @@ namespace Integration.Application.Integrations.Activities
     public class FourSquareService
     {
         private readonly HttpClient _httpClient;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IEventPublisher _publisher;
         private readonly IMapper _mapper;
         private readonly ILogger<FourSquareService> _logger;
         private readonly INominatimService _nominatimService;
         private readonly ISerpService _serpService;
         private readonly ITavilyService _tavilyService;
 
-        public FourSquareService(HttpClient httpClient, IPublishEndpoint publishEndpoint, IMapper mapper, ILogger<FourSquareService> logger, INominatimService nominatimService, ISerpService serpService, ITavilyService tavilyService)
+        public FourSquareService(HttpClient httpClient, IEventPublisher publisher, IMapper mapper, ILogger<FourSquareService> logger, INominatimService nominatimService, ISerpService serpService, ITavilyService tavilyService)
         {
             _httpClient = httpClient;
-            _publishEndpoint = publishEndpoint;
+            _publisher = publisher;
             _mapper = mapper;
             _logger = logger;
             _nominatimService = nominatimService;
@@ -65,7 +65,7 @@ namespace Integration.Application.Integrations.Activities
                         activity.ImagesURL = locationImages.Select((x) => new ImageURLMQ() { Source = "Tavily", Thumbnail = x }).ToList();
                     }
 
-                    await _publishEndpoint.Publish(new FoundActivitiesForLocationEvent
+                    await _publisher.PublishAsync(new FoundActivitiesForLocationEvent
                     {
                         Location = city,
                         Activities = activityList

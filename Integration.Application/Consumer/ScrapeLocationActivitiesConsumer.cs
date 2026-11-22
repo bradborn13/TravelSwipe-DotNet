@@ -1,6 +1,6 @@
 ﻿using Activities.Core.Features.Cities;
 using Integration.Application.Integrations.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ using TravelSwipe.Shared.Contracts;
 namespace Integration.Application.Consumer
 {
 
-    public class ScrapeLocationActivitiesConsumer : IConsumer<ScrapeLocationActivitiesEvent>
+    public class ScrapeLocationActivitiesConsumer : IMessageHandler<ScrapeLocationActivitiesEvent>
     {
         private readonly ILogger<ScrapeLocationActivitiesConsumer> _logger;
         private readonly FourSquareService _fsService;
@@ -27,10 +27,9 @@ namespace Integration.Application.Consumer
             _fsService = fsService;
         }
 
-        public async Task Consume(ConsumeContext<ScrapeLocationActivitiesEvent> context)
+        public async Task HandleAsync(ScrapeLocationActivitiesEvent @event, CancellationToken cancellationToken)
         {
-            var @event = context.Message;
-
+            
             _logger.LogInformation(
                 "Consuming ScrapeLocationActivitiesEvent for {Location}",
                 @event.Location

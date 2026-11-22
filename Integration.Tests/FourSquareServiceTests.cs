@@ -5,7 +5,7 @@ using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -20,7 +20,7 @@ namespace Integration.Application.Tests
     {
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
-        private readonly Mock<IPublishEndpoint> _publishEndpointMock;
+        private readonly Mock<IEventPublisher> _publishEndpointMock;
         private readonly IMapper _mapper;
         private readonly Mock<ILogger<FourSquareService>> _loggerMock;
         private readonly FourSquareService _service;
@@ -33,7 +33,7 @@ namespace Integration.Application.Tests
                 BaseAddress = new Uri("https://api.foursquare.com/")
             };
 
-            _publishEndpointMock = new Mock<IPublishEndpoint>();
+            _publishEndpointMock = new Mock<IEventPublisher>();
             _loggerMock = new Mock<ILogger<FourSquareService>>();
             var loggerFactory = new LoggerFactory();
             var logger = loggerFactory.CreateLogger<FourSquareService>();
@@ -94,12 +94,12 @@ namespace Integration.Application.Tests
             var publishedEvents = new List<object>();
 
             //_publishEndpointMock
-            //   .Setup(p => p.Publish(It.IsAny<CityRegisteredEvent>(), It.IsAny<CancellationToken>()))
+            //   .Setup(p => p.PublishAsync(It.IsAny<CityRegisteredEvent>(), It.IsAny<CancellationToken>()))
             //   .Callback<CityRegisteredEvent, CancellationToken>((evt, ct) => publishedEvents.Add(evt))
             //   .Returns(Task.CompletedTask);
 
             _publishEndpointMock
-                .Setup(p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()))
                 .Callback<FoundActivitiesForLocationEvent, CancellationToken>((evt, ct) => publishedEvents.Add(evt))
                 .Returns(Task.CompletedTask);
 
@@ -148,7 +148,7 @@ namespace Integration.Application.Tests
 
             // Assert
             _publishEndpointMock.Verify(
-                p => p.Publish(
+                p => p.PublishAsync(
                     It.Is<FoundActivitiesForLocationEvent>(e =>
                         e.Location == city &&
                         e.Activities.Count == 0
@@ -179,7 +179,7 @@ namespace Integration.Application.Tests
 
             // Verify no event was published
             _publishEndpointMock.Verify(
-                p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
+                p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }
@@ -209,7 +209,7 @@ namespace Integration.Application.Tests
 
             // Verify no event was published
             _publishEndpointMock.Verify(
-                p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
+                p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }

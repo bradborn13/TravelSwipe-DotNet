@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Integration.Application.Integrations.Activities;
 using Integration.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -20,13 +20,13 @@ namespace Integration.Application.Integrations.Location
     public class NominatimAPIService : INominatimService
     {
         private readonly HttpClient _httpClient;
-        private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IEventPublisher _publisher;
         private readonly ILogger<NominatimAPIService> _logger;
 
-        public NominatimAPIService(HttpClient httpClient, IPublishEndpoint publishEndpoint, ILogger<NominatimAPIService> logger)
+        public NominatimAPIService(HttpClient httpClient, IEventPublisher publisher, ILogger<NominatimAPIService> logger)
         {
             _httpClient = httpClient;
-            _publishEndpoint = publishEndpoint;
+            _publisher = publisher;
             _logger = logger;
         }
 
@@ -62,7 +62,7 @@ namespace Integration.Application.Integrations.Location
                     nameList.Add(nominatimResponse?.Address?.City);
 
                 }
-                await _publishEndpoint.Publish(new CityRegisteredEvent
+                await _publisher.PublishAsync(new CityRegisteredEvent
                 {
                     Country = nominatimResponse.Address.Country ?? "",
                     DiscoveredAt = DateTime.Now,
@@ -74,7 +74,7 @@ namespace Integration.Application.Integrations.Location
 
 
                 });
-                await _publishEndpoint.Publish(new CountryRegisteredEvent
+                await _publisher.PublishAsync(new CountryRegisteredEvent
                 {
                     CountryCode = nominatimResponse?.Address?.CountryCode ?? "",
                     DiscoveredAt = DateTime.Now,

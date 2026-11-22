@@ -1,10 +1,12 @@
 ﻿
+using EventHub.Application.Consumer;
 using EventHub.Application.Consumers;
 using EventHub.Application.Hubs;
 using EventHub.Application.Mappings;
-using EventHub.Worker.RabbitMQTopology;
 using EventStore.Client;
-using RabbitMQ.Client;
+using System.Text.Json.Nodes;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,46 +27,14 @@ builder.Services.AddCors(options =>
 
 
 
-// MassTransit + RabbitMQ
-//builder.Services.AddMassTransit(x =>
-//{
-//    x.AddConsumer<LatestImagesForActivitiesConsumer>();
-//    x.AddConsumer<ActivitiesByLocationConsumer>();
 
-//    x.UsingRabbitMq((ctx, cfg) =>
-//    {
-//        cfg.UsePrometheusMetrics();
+// RabbitMQ
+builder.Services.AddRabbitMqMessaging(builder.Configuration);
+builder.Services.AddRabbitMqConsumer<ActivitiesByLocationEvent, ActivitiesByLocationConsumer>(MessagingTopology.Queues.EventHubActivities);
+builder.Services.AddRabbitMqConsumer<LatestImagesForActivitiesEvent, LatestImagesForActivitiesConsumer>(MessagingTopology.Queues.EventHubImages);
 
-//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-//        {
-//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-//        });
-
-//        cfg.ConfigureEndpoints(ctx);
-//    });
-//});
-
-var factory = new ConnectionFactory
-{
-    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
-    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
-    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
-};
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-});
-builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
-builder.Services.AddHostedService<CityRegisteredConsumer>();
-
-
-// 3. Register the Publishing Channel
-builder.Services.AddSingleton<IChannel>(sp =>
-{
-    var connection = sp.GetRequiredService<IConnection>();
-    return connection.CreateChannelAsync().GetAwaiter().GetResult();
-});
+// Every message on the exchange is appended to EventStore (one stream per event type).
+builder.Services.AddRabbitMqConsumer<JsonNode, EventStoreRecorder>(MessagingTopology.Queues.EventHubEventStore);
 
 
 //services.AddSingleton<HubConnection>(sp =>
@@ -92,11 +62,4 @@ app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<MessagingHub>("/hub");
-using (var scope = app.Services.CreateScope())
-{
-    var topology = scope.ServiceProvider
-        .GetRequiredService<RabbitMqTopologyInitializer>();
-
-    await topology.Initialize();
-}
 app.Run();

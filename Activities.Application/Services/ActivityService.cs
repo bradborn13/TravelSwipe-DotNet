@@ -3,17 +3,14 @@ using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
 using Activities.Core.Features.Countries;
 using AutoMapper;
-using MassTransit;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 
 using Prometheus;
-using RabbitMQ.Client;
 using Slugify;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
 using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 using TravelSwipe.Shared.Models;
 
 
@@ -22,17 +19,15 @@ namespace Activities.Application.Services.Activities
     public class ActivityService : IActivityService
     {
         private readonly IActivityRepository _repository;
-        private readonly IConnection _connection;
-        private const string ExchangeName = "travelswipe-exchange";
         private readonly ICityRepository _cityRepository;
         private readonly ICountryRepository _countryRepository;
-        private readonly IChannel _channel;
+        private readonly IEventPublisher _publisher;
         private readonly ILogger<ActivityService> _logger;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         ActivityMetrics _metrics;
-        public ActivityService(ActivityMetrics metrics, ILogger<ActivityService> logger, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IChannel channel)
+        public ActivityService(ActivityMetrics metrics, ILogger<ActivityService> logger, IDistributedCache cache, IActivityRepository repository, ICountryRepository countryRepository, IMapper mapper, ICityRepository cityRepository, IEventPublisher publisher)
         {
             _metrics = metrics;
             _cache = cache;
@@ -40,14 +35,12 @@ namespace Activities.Application.Services.Activities
             _mapper = mapper;
             _cityRepository = cityRepository;
             _countryRepository = countryRepository;
-            _channel = channel;
+            _publisher = publisher;
             _logger = logger;
         }
 
         public async Task<List<ActivityDto>> GetActivitiesByCity(string city)
         {
-            //await using var channel = await _connection.CreateChannelAsync();
-
             var cacheKey = $"api:activities:{city.ToLower()}";
             var cached = await _cache.GetStringAsync(cacheKey);
             if (cached != null)
@@ -57,16 +50,11 @@ namespace Activities.Application.Services.Activities
 
                 if (deserialized != null)
                 {
-                    var payload = new ActivitiesByLocationEvent
+                    await _publisher.PublishAsync(new ActivitiesByLocationEvent
                     {
                         Location = city,
-                        Activities = deserialized ?? []
-                    };
-                    var activityByLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload));
-                    await _channel.BasicPublishAsync(
-                        exchange: "travelswipe-exchange", routingKey: "activities.by.location", mandatory: true,
-                body: activityByLocationBody
-                        );
+                        Activities = deserialized
+                    });
                     return deserialized;
                 }
             }
@@ -78,13 +66,7 @@ namespace Activities.Application.Services.Activities
                     city);
                 using (_metrics.ActivityScraptingEventsDuration.NewTimer())
                 {
-
-                    await _channel.ExchangeDeclareAsync(
-                    exchange: "travelswipe-exchange",
-                    type: ExchangeType.Topic,
-                    durable: true
-                    );
-                    var newLocationFoundEvent = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new CityRegisteredEvent
+                    await _publisher.PublishAsync(new CityRegisteredEvent
                     {
                         DisplayName = city ?? "",
                         SlugList = [city ?? ""],
@@ -94,20 +76,11 @@ namespace Activities.Application.Services.Activities
                         Postcode = "ttesst",
                         DiscoveredAt = DateTime.UtcNow,
                         NameList = [city ?? ""]
-
-                    }));
-                    await _channel.BasicPublishAsync(
-                    exchange: "travelswipe-exchange", routingKey: "city.registered", mandatory: true,
-            body: newLocationFoundEvent
-                    );
-                    var scrapeLocationBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new ScrapeLocationActivitiesEvent
+                    });
+                    await _publisher.PublishAsync(new ScrapeLocationActivitiesEvent
                     {
                         Location = city
-                    }));
-                    await _channel.BasicPublishAsync(
-                        exchange: "travelswipe-exchange", routingKey: "scrapeEvents.by.location", mandatory: true,
-                body: scrapeLocationBody
-                        );
+                    });
                     return new List<ActivityDto>();
                 }
             }
@@ -128,23 +101,12 @@ namespace Activities.Application.Services.Activities
            "GetActivitiesByCity - PushingEvent ActivitiesByLocationEvent for location {DisplayName}, {EventCount} activities found",
            city, mappedResponse.Count()
        );
-            var activitiesByLocationEvent = new ActivitiesByLocationEvent
+            await _publisher.PublishAsync(new ActivitiesByLocationEvent
             {
                 Location = city,
                 Activities = mappedResponse
-            };
-
-            var scrapingEventRequest = new ScrapeLocationActivitiesEvent
-            {
-                Location = city
-            };
-
-            var scrapeEventsBody = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(activitiesByLocationEvent));
-            await _channel.BasicPublishAsync(
-                        exchange: "travelswipe-exchange", routingKey: "scrapeEvents.by.location", mandatory: true,
-                body: scrapeEventsBody
-                        );
-            //await _publishEndpoint.Publish(new CityRegisteredEvent
+            });
+            //await _publisher.PublishAsync(new CityRegisteredEvent
             //{
             //    DisplayName = activityList[0].City ?? "",
             //    SlugList = [slugHelper.GenerateSlug(activityList[0].City)],
@@ -158,7 +120,7 @@ namespace Activities.Application.Services.Activities
             //});
             if (!string.IsNullOrEmpty(activityList[0]?.Details?.Country))
             {
-                //    await _publishEndpoint.Publish(new CountryRegisteredEvent
+                //    await _publisher.PublishAsync(new CountryRegisteredEvent
                 //    {
                 //        DisplayName = activityList[0].Details?.Country ?? "",
                 //        CountryCode = "",
@@ -186,11 +148,11 @@ namespace Activities.Application.Services.Activities
     "TriggerIntegrationImageUpdate - publishing event for location: {city}, {activitiesCount} activities found",
     city, activityByNameList.Count
 );
-            //await _publishEndpoint.Publish(new FetchLatestImagesForLocation
-            //{
-            //    City = city,
-            //    Activities = activityByNameList
-            //});
+            await _publisher.PublishAsync(new FetchLatestImagesForLocation
+            {
+                City = city,
+                Activities = activityByNameList
+            });
         }
         public async Task UpdateImagesOnActivities(string city, Dictionary<string, List<ImageURLMQ>> imagePackageByActivities)
         {

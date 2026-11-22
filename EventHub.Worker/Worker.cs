@@ -1,5 +1,4 @@
-
-using MassTransit;
+﻿
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

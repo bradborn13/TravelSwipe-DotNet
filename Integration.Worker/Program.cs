@@ -1,14 +1,13 @@
-using Infrastructure.Mappings;
+﻿using Infrastructure.Mappings;
 using Integration.Application.Consumer;
 using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Images;
 using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
 using Integration.Worker;
-using MassTransit;
 using System.Net.Http.Headers;
-using TravelSwipe.Shared;
 using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -68,30 +67,13 @@ builder.ConfigureServices((context, services) =>
     })
     .AddTypedClient<INominatimService>((HttpClient httpClient, IServiceProvider serviceProvider) => new NominatimAPIService(
     httpClient,
-    serviceProvider.GetRequiredService<IPublishEndpoint>(),
+    serviceProvider.GetRequiredService<IEventPublisher>(),
     serviceProvider.GetRequiredService<ILogger<NominatimAPIService>>()
 ));
-    // MassTransit + RabbitMQ
-    services.AddMassTransit(x =>
-    {
-        x.AddConsumer<ScrapeLocationActivitiesConsumer>();
-        x.AddConsumer<FetchLatestImagesForLocationConsumer>();
-        x.AddConsumer<GenericFaultConsumer<ScrapeLocationActivitiesEvent>>();
-        x.AddConsumer<GenericFaultConsumer<FetchLatestImagesForLocation>>();
-
-        x.UsingRabbitMq((IBusRegistrationContext ctx, IRabbitMqBusFactoryConfigurator cfg) =>
-        {
-            cfg.UsePrometheusMetrics();
-
-            cfg.Host(configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-            {
-                h.Username(configuration["RabbitMQ:Username"] ?? "admin");
-                h.Password(configuration["RabbitMQ:Password"] ?? "secretpassword");
-            });
-
-            cfg.ConfigureEndpoints(ctx);
-        });
-    });
+    // RabbitMQ
+    services.AddRabbitMqMessaging(configuration);
+    services.AddRabbitMqConsumer<ScrapeLocationActivitiesEvent, ScrapeLocationActivitiesConsumer>(MessagingTopology.Queues.ActivityScrape);
+    services.AddRabbitMqConsumer<FetchLatestImagesForLocation, FetchLatestImagesForLocationConsumer>(MessagingTopology.Queues.IntegrationImages);
 });
 
 

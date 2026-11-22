@@ -1,6 +1,5 @@
-using Activitie.Infrastructure.Repositories;
+﻿using Activitie.Infrastructure.Repositories;
 using Activities.Api.Metrics;
-using Activities.Api.RabbitMQTopology;
 using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
 using Activities.Core.Features.Cities;
@@ -10,7 +9,10 @@ using Activities.Infrastructure.Repositories;
 using Infrastructure.Mappings;
 using Microsoft.EntityFrameworkCore;
 using Prometheus;
-using RabbitMQ.Client;
+using Activities.Application.Consumer;
+using Activities.Application.Consumers;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,44 +36,11 @@ builder.Services.AddDbContext<ActivityDbContext>(options =>
 
 // MongoDB
 builder.Services.AddSingleton<MongoContext>();
-// MassTransit + RabbitMQ
-//builder.Services.AddMassTransit(x =>
-//{
-//    x.AddConsumer<FoundActivityForLocationConsumer>();
-//    x.AddConsumer<LatestImagesForActivitiesConsumer>();
 
-//    x.UsingRabbitMq((ctx, cfg) =>
-//    {
-//        cfg.UsePrometheusMetrics();
-
-//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-//        {
-//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-//        });
-
-//        cfg.ConfigureEndpoints(ctx);
-//    });
-//});
-var factory = new ConnectionFactory
-{
-    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
-    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
-    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
-};
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-});
-builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
-
-
-// 3. Register the Publishing Channel
-builder.Services.AddSingleton<IChannel>(sp =>
-{
-    var connection = sp.GetRequiredService<IConnection>();
-    return connection.CreateChannelAsync().GetAwaiter().GetResult();
-});
+// RabbitMQ
+builder.Services.AddRabbitMqMessaging(builder.Configuration);
+builder.Services.AddRabbitMqConsumer<FoundActivitiesForLocationEvent, FoundActivityForLocationConsumer>(MessagingTopology.Queues.ActivityFound);
+builder.Services.AddRabbitMqConsumer<LatestImagesForActivitiesEvent, LatestImagesForActivitiesConsumer>(MessagingTopology.Queues.ActivityImages);
 
 // Redis
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -112,11 +81,4 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapMetrics();
 //app.MapHub<MessagingHub>("/hub");
-using (var scope = app.Services.CreateScope())
-{
-    var topology = scope.ServiceProvider
-        .GetRequiredService<RabbitMqTopologyInitializer>();
-
-    await topology.Initialize();
-}
 app.Run();

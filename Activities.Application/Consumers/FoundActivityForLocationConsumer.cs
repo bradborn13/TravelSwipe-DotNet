@@ -2,7 +2,7 @@
 using Activities.Core.Features.Activities;
 using AutoMapper;
 
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using TravelSwipe.Shared.Contracts;
@@ -10,7 +10,7 @@ using TravelSwipe.Shared.Contracts;
 namespace Activities.Application.Consumer
 {
 
-    public class FoundActivityForLocationConsumer : IConsumer<FoundActivitiesForLocationEvent>
+    public class FoundActivityForLocationConsumer : IMessageHandler<FoundActivitiesForLocationEvent>
     {
         private readonly ILogger<FoundActivityForLocationConsumer> _logger;
         private readonly IActivityRepository _repo;
@@ -29,10 +29,8 @@ IHubContext<MessagingHub> hubContext)
             _hubContext = hubContext;
         }
 
-        public async Task Consume(ConsumeContext<FoundActivitiesForLocationEvent> context)
+        public async Task HandleAsync(FoundActivitiesForLocationEvent @event, CancellationToken cancellationToken)
         {
-            var @event = context.Message;
-
             _logger.LogInformation(
                 "Consuming FoundActivitiesForLocationEvent for {DisplayName}, {EventCount} activiites found",
                 @event.Location, @event.Activities.Count()

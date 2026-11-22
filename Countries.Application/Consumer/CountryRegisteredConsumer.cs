@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
 using Countries.Application.Services;
 using Countries.Core.Features.Countries;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using TravelSwipe.Shared.Contracts;
 
 namespace Countries.Application.Consumer
 {
 
-    public class CountryRegisteredConsumer : IConsumer<CountryRegisteredEvent>
+    public class CountryRegisteredConsumer : IMessageHandler<CountryRegisteredEvent>
     {
         private readonly ILogger<CountryRegisteredConsumer> _logger;
         private readonly ICountryService _countryService;
@@ -24,9 +24,8 @@ namespace Countries.Application.Consumer
             _mapper = mapper;
         }
 
-        public async Task Consume(ConsumeContext<CountryRegisteredEvent> context)
+        public async Task HandleAsync(CountryRegisteredEvent @event, CancellationToken cancellationToken)
         {
-            var @event = context.Message;
 
             _logger.LogInformation(
                 "Consuming CountryDiscoveredEvent for {DisplayName}",

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Integration.Application.Integrations.Activities;
 using Integration.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -21,7 +21,7 @@ namespace Integration.Application.Tests
     {
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
-        private readonly Mock<IPublishEndpoint> _publishEndpointMock;
+        private readonly Mock<IEventPublisher> _publishEndpointMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<ILogger<FourSquareService>> _loggerMock;
         private readonly FourSquareService _service;
@@ -34,7 +34,7 @@ namespace Integration.Application.Tests
                 BaseAddress = new Uri("https://api.foursquare.com/")
             };
 
-            _publishEndpointMock = new Mock<IPublishEndpoint>();
+            _publishEndpointMock = new Mock<IEventPublisher>();
             _mapperMock = new Mock<IMapper>();
             _loggerMock = new Mock<ILogger<FourSquareService>>();
 
@@ -86,7 +86,7 @@ namespace Integration.Application.Tests
 
             // Mock publish endpoint
             _publishEndpointMock
-                .Setup(p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
 
             // Act
@@ -94,7 +94,7 @@ namespace Integration.Application.Tests
 
             // Assert
             _publishEndpointMock.Verify(
-                p => p.Publish(
+                p => p.PublishAsync(
                     It.Is<FoundActivitiesForLocationEvent>(e =>
                         e.Location == city &&
                         e.Activities.Count == 2 &&
@@ -134,7 +134,7 @@ namespace Integration.Application.Tests
 
             // Assert
             _publishEndpointMock.Verify(
-                p => p.Publish(
+                p => p.PublishAsync(
                     It.Is<FoundActivitiesForLocationEvent>(e =>
                         e.Location == city &&
                         e.Activities.Count == 0
@@ -165,7 +165,7 @@ namespace Integration.Application.Tests
 
             // Verify no event was published
             _publishEndpointMock.Verify(
-                p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
+                p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }
@@ -195,7 +195,7 @@ namespace Integration.Application.Tests
 
             // Verify no event was published
             _publishEndpointMock.Verify(
-                p => p.Publish(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
+                p => p.PublishAsync(It.IsAny<FoundActivitiesForLocationEvent>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }

@@ -2,7 +2,7 @@
 using Integration.Application.Integrations.Activities;
 using Integration.Application.Integrations.Location;
 using Integration.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Moq.Protected;
@@ -19,7 +19,7 @@ namespace Integration.Tests
     {
         private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock;
         private readonly HttpClient _httpClient;
-        private readonly Mock<IPublishEndpoint> _publishEndpointMock;
+        private readonly Mock<IEventPublisher> _publishEndpointMock;
         private readonly Mock<ILogger<NominatimAPIService>> _loggerMock;
         private readonly NominatimAPIService _service;
 
@@ -31,7 +31,7 @@ namespace Integration.Tests
                 BaseAddress = new Uri("https://api.foursquare.com/")
             };
 
-            _publishEndpointMock = new Mock<IPublishEndpoint>();
+            _publishEndpointMock = new Mock<IEventPublisher>();
             _loggerMock = new Mock<ILogger<NominatimAPIService>>();
             var loggerFactory = new LoggerFactory();
             var logger = loggerFactory.CreateLogger<NominatimAPIService>();
@@ -87,12 +87,12 @@ namespace Integration.Tests
             var publishedCreatedCity = new List<CityRegisteredEvent>();
             var publishedCreatedCountry = new List<CountryRegisteredEvent>();
             _publishEndpointMock
-                .Setup(p => p.Publish(It.IsAny<CityRegisteredEvent>(), It.IsAny<CancellationToken>()))
+                .Setup(p => p.PublishAsync(It.IsAny<CityRegisteredEvent>(), It.IsAny<CancellationToken>()))
                 .Callback<CityRegisteredEvent, CancellationToken>((evt, ct) => publishedCreatedCity.Add(evt))
                 .Returns(Task.CompletedTask);
 
             _publishEndpointMock
-           .Setup(p => p.Publish(It.IsAny<CountryRegisteredEvent>(), It.IsAny<CancellationToken>()))
+           .Setup(p => p.PublishAsync(It.IsAny<CountryRegisteredEvent>(), It.IsAny<CancellationToken>()))
            .Callback<CountryRegisteredEvent, CancellationToken>((evt, ct) => publishedCreatedCountry.Add(evt))
            .Returns(Task.CompletedTask);
 

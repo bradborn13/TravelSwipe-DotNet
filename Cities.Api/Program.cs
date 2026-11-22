@@ -1,5 +1,4 @@
-using Cities.Api.RabbitMQTopology;
-using Cities.Application.Consumers;
+﻿using Cities.Application.Consumers;
 using Cities.Application.Mappings;
 using Cities.Application.Services;
 using Cities.Core.Features.Cities;
@@ -7,7 +6,8 @@ using Cities.Core.Features.Countries;
 using Cities.Infrastructure.Data;
 using Cities.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using RabbitMQ.Client;
+using TravelSwipe.Shared.Contracts;
+using TravelSwipe.Shared.Messaging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,35 +27,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-var factory = new ConnectionFactory
-{
-    HostName = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq",
-    UserName = builder.Configuration["RabbitMQ:Username"] ?? "admin",
-    Password = builder.Configuration["RabbitMQ:Password"] ?? "secretpassword",
-};
-builder.Services.AddSingleton<IConnection>(sp =>
-{
-    return factory.CreateConnectionAsync().GetAwaiter().GetResult();
-});
-builder.Services.AddSingleton<RabbitMqTopologyInitializer>();
+// RabbitMQ
+builder.Services.AddRabbitMqMessaging(builder.Configuration);
+builder.Services.AddRabbitMqConsumer<CityRegisteredEvent, CityRegisteredConsumer>(MessagingTopology.Queues.CityService);
 
-// Register each worker individually
-builder.Services.AddHostedService<CityRegisteredConsumer>();
-//builder.Services.AddMassTransit(x =>
-//{
-//    x.AddConsumer<CityRegisteredConsumer>();
-
-//    x.UsingRabbitMq((ctx, cfg) =>
-//    {
-//        cfg.Host(builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq", h =>
-//        {
-//            h.Username(builder.Configuration["RabbitMQ:Username"] ?? "admin");
-//            h.Password(builder.Configuration["RabbitMQ:Password"] ?? "secretpassword");
-//        });
-
-//        cfg.ConfigureEndpoints(ctx);
-//    });
-//});
 //PostgreSQL
 var connectionStringPostgres = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<CityDbContext>(options =>
@@ -91,12 +66,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-using (var scope = app.Services.CreateScope())
-{
-    var topology = scope.ServiceProvider
-        .GetRequiredService<RabbitMqTopologyInitializer>();
-
-    await topology.Initialize();
-}
 
 app.Run();

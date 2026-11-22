@@ -1,14 +1,9 @@
-
-using MassTransit;
-
+﻿
 namespace Integration.Worker
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly IConsumer _consumer;
-        private readonly IPublishEndpoint _publisher;
-
         public Worker(ILogger<Worker> logger)
         {
             _logger = logger;

@@ -1,6 +1,6 @@
 ﻿using Activities.Application.Services.Activities;
 using Activities.Core.Features.Activities;
-using MassTransit;
+using TravelSwipe.Shared.Messaging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,20 +12,19 @@ using TravelSwipe.Shared.Models;
 
 namespace Activities.Application.Consumers
 {
-    public class LatestImagesForActivitiesConsumer : IConsumer<LatestImagesForActivitiesEvent>
+    public class LatestImagesForActivitiesConsumer : IMessageHandler<LatestImagesForActivitiesEvent>
     {
         private readonly ILogger<LatestImagesForActivitiesConsumer> _logger;
         private readonly IActivityService _activityService;
         public LatestImagesForActivitiesConsumer(
-       ILogger<LatestImagesForActivitiesConsumer> logger, IPublishEndpoint publishEndpoint, IActivityService activityService)
+       ILogger<LatestImagesForActivitiesConsumer> logger, IActivityService activityService)
         {
             _logger = logger;
             _activityService = activityService;
         }
-        public async Task Consume(ConsumeContext<LatestImagesForActivitiesEvent> context)
+        public async Task HandleAsync(LatestImagesForActivitiesEvent @event, CancellationToken cancellationToken)
         {
-            var @event = context.Message;
-            try
+                        try
             {
                 await _activityService.UpdateImagesOnActivities(@event.City, @event.ImagePackageByActivity);
                 _logger.LogInformation("Successfully processed images for city: {city}", @event.City);
@@ -33,7 +32,7 @@ namespace Activities.Application.Consumers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to process images for city: {city}", @event.City);
-                throw;  // Requeue the message in RabbitMQ
+                throw;  // Moves the message to activity-images-queue_error
             }
 
         }
