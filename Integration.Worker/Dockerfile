@@ -7,7 +7,7 @@ WORKDIR /src
 COPY ["Integration.Worker/Integration.Worker.csproj", "Integration.Worker/"]
 COPY ["Integration.Application/Integration.Application.csproj", "Integration.Application/"]
 COPY ["Integration.Core/Integration.Core.csproj", "Integration.Core/"]
-COPY ["TravelSwipe.Contracts/TravelSwipe.Contracts.csproj", "TravelSwipe.Contracts/"]
+COPY ["TravelSwipe.Shared/TravelSwipe.Shared.csproj", "TravelSwipe.Shared/"]
 
 RUN dotnet restore "Integration.Worker/Integration.Worker.csproj"
 

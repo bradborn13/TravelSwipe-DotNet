@@ -10,7 +10,6 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Channels;
-using TravelSwipe.Core.Features.Activities;
 using TravelSwipe.Shared.Contracts;
 
 namespace Cities.Application.Consumers;

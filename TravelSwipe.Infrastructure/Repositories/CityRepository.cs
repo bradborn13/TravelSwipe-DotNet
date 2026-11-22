@@ -1,14 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TravelSwipe.Core.Core.Users;
 using TravelSwipe.Core.Features.Cities;
-using TravelSwipe.Core.Features.Countries;
-using TravelSwipe.Core.Features.Users;
 using TravelSwipe.Infrastructure.data;
 
 namespace TravelSwipe.Infrastructure.Repositories

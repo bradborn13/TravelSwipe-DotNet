@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TravelSwipe.Core.Features.Countries;
-
-namespace TravelSwipe.Core.Features.Cities
+﻿namespace TravelSwipe.Core.Features.Cities
 {
     public interface ICityRepository
     {

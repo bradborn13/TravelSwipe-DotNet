@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
-using System;
 using System.Text.Json;
 using TravelSwipe.Application.ExternalServices;
-using TravelSwipe.Core;
 using TravelSwipe.Core.Features.Activities;
 using TravelSwipe.Core.Features.Cities;
 using TravelSwipe.Core.Features.Countries;
@@ -101,7 +99,7 @@ namespace TravelSwipe.Application.Services.Activities
             var cityList = geoLocationList
                 .Select(x => new City
                 {
-                    
+
                     Country = x.Address?.Country ?? "",
                     Municipality = x.Address?.Municipality ?? "",
                     NameClean = slugHelper.GenerateSlug(x?.Address?.City ?? string.Empty),
@@ -115,7 +113,7 @@ namespace TravelSwipe.Application.Services.Activities
              {
                  NameClean = slugHelper.GenerateSlug(x.Address?.Country ?? string.Empty),
                  CountryCode = x.Address?.CountryCode ?? "",
-                 AssociatedNames= { x?.Address?.Country ?? "" },
+                 AssociatedNames = { x?.Address?.Country ?? "" },
              })
              .ToList();
             await _cityRepository.AddBatch(cityList);

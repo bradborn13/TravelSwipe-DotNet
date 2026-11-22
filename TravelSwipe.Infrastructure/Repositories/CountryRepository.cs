@@ -1,12 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TravelSwipe.Core.Features.Cities;
+
 using TravelSwipe.Core.Features.Countries;
 using TravelSwipe.Infrastructure.data;
 

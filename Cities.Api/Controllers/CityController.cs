@@ -1,7 +1,6 @@
 ﻿
 using Cities.Core.Features.Cities;
 using Microsoft.AspNetCore.Mvc;
-using TravelSwipe.Core.Features.Countries;
 
 namespace Cities.Api.Controllers
 {

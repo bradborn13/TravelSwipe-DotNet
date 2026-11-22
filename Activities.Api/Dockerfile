@@ -9,7 +9,7 @@ COPY ["Activities.Api/Activities.Api.csproj", "Activities.Api/"]
 COPY ["Activities.Application/Activities.Application.csproj", "Activities.Application/"]
 COPY ["Activities.Core/Activities.Core.csproj", "Activities.Core/"]
 COPY ["Activities.Infrastructure/Activities.Infrastructure.csproj", "Activities.Infrastructure/"]
-COPY ["TravelSwipe.Contracts/TravelSwipe.Contracts.csproj", "TravelSwipe.Contracts/"]
+COPY ["TravelSwipe.Shared/TravelSwipe.Shared.csproj", "TravelSwipe.Shared/"]
 
 RUN dotnet restore "Activities.Api/Activities.Api.csproj"
  
